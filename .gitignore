@@ -1,0 +1,14 @@
+work/
+.build/
+dist/
+outputs/*
+!outputs/.gitkeep
+.DS_Store
+__pycache__/
+*.pyc
+.env
+.env.*
+*.log
+*.p12
+*.pfx
+*.key

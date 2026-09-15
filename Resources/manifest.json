@@ -1,0 +1,1719 @@
+{
+  "schemaVersion": 3,
+  "actions": [
+    {
+      "id": "convert.jpg",
+      "label": "JPEG",
+      "menu": "Convert",
+      "group": 10,
+      "order": 0,
+      "outputFormat": "jpg",
+      "minimumCount": 1,
+      "maximumCount": null,
+      "sameDirectory": false,
+      "showCurrent": true,
+      "needsPages": false
+    },
+    {
+      "id": "convert.png",
+      "label": "PNG",
+      "menu": "Convert",
+      "group": 10,
+      "order": 1,
+      "outputFormat": "png",
+      "minimumCount": 1,
+      "maximumCount": null,
+      "sameDirectory": false,
+      "showCurrent": true,
+      "needsPages": false
+    },
+    {
+      "id": "convert.heic",
+      "label": "HEIC",
+      "menu": "Convert",
+      "group": 10,
+      "order": 2,
+      "outputFormat": "heic",
+      "minimumCount": 1,
+      "maximumCount": null,
+      "sameDirectory": false,
+      "showCurrent": true,
+      "needsPages": false
+    },
+    {
+      "id": "convert.tiff",
+      "label": "TIFF",
+      "menu": "Convert",
+      "group": 10,
+      "order": 3,
+      "outputFormat": "tiff",
+      "minimumCount": 1,
+      "maximumCount": null,
+      "sameDirectory": false,
+      "showCurrent": true,
+      "needsPages": false
+    },
+    {
+      "id": "convert.webp",
+      "label": "WebP",
+      "menu": "Convert",
+      "group": 10,
+      "order": 8,
+      "outputFormat": "webp",
+      "minimumCount": 1,
+      "maximumCount": null,
+      "sameDirectory": false,
+      "showCurrent": true,
+      "needsPages": false
+    },
+    {
+      "id": "convert.avif",
+      "label": "AVIF",
+      "menu": "Convert",
+      "group": 10,
+      "order": 8,
+      "outputFormat": "avif",
+      "minimumCount": 1,
+      "maximumCount": null,
+      "sameDirectory": false,
+      "showCurrent": true,
+      "needsPages": false
+    },
+    {
+      "id": "convert.icns",
+      "label": "ICNS",
+      "menu": "Convert",
+      "group": 40,
+      "order": 8,
+      "outputFormat": "icns",
+      "minimumCount": 1,
+      "maximumCount": null,
+      "sameDirectory": false,
+      "showCurrent": true,
+      "needsPages": false
+    },
+    {
+      "id": "convert.ico",
+      "label": "ICO",
+      "menu": "Convert",
+      "group": 40,
+      "order": 8,
+      "outputFormat": "ico",
+      "minimumCount": 1,
+      "maximumCount": null,
+      "sameDirectory": false,
+      "showCurrent": true,
+      "needsPages": false
+    },
+    {
+      "id": "convert.pdf",
+      "label": "PDF",
+      "menu": "Convert",
+      "group": 20,
+      "order": 0,
+      "outputFormat": "pdf",
+      "minimumCount": 1,
+      "maximumCount": null,
+      "sameDirectory": false,
+      "showCurrent": false,
+      "needsPages": false
+    },
+    {
+      "id": "pdf.combine-images",
+      "label": "Combine into one PDF",
+      "menu": "PDF",
+      "group": 10,
+      "order": 0,
+      "outputFormat": "pdf",
+      "minimumCount": 2,
+      "maximumCount": null,
+      "sameDirectory": true,
+      "showCurrent": false,
+      "needsPages": false
+    },
+    {
+      "id": "pdf.combine",
+      "label": "Combine PDFs",
+      "menu": "PDF",
+      "group": 10,
+      "order": 0,
+      "outputFormat": "pdf",
+      "minimumCount": 2,
+      "maximumCount": null,
+      "sameDirectory": true,
+      "showCurrent": false,
+      "needsPages": false
+    },
+    {
+      "id": "pdf.split",
+      "label": "Split into separate PDFs",
+      "menu": "PDF",
+      "group": 20,
+      "order": 0,
+      "outputFormat": "pdf",
+      "minimumCount": 1,
+      "maximumCount": null,
+      "sameDirectory": false,
+      "showCurrent": false,
+      "needsPages": false
+    },
+    {
+      "id": "pdf.extract",
+      "label": "Extract pages\u2026",
+      "menu": "PDF",
+      "group": 20,
+      "order": 1,
+      "outputFormat": "pdf",
+      "minimumCount": 1,
+      "maximumCount": 1,
+      "sameDirectory": false,
+      "showCurrent": false,
+      "needsPages": true
+    },
+    {
+      "id": "pdf.remove",
+      "label": "Remove pages\u2026",
+      "menu": "PDF",
+      "group": 20,
+      "order": 2,
+      "outputFormat": "pdf",
+      "minimumCount": 1,
+      "maximumCount": 1,
+      "sameDirectory": false,
+      "showCurrent": false,
+      "needsPages": true
+    },
+    {
+      "id": "pdf.rotate-right",
+      "label": "Rotate clockwise",
+      "menu": "PDF",
+      "group": 30,
+      "order": 3,
+      "outputFormat": "pdf",
+      "minimumCount": 1,
+      "maximumCount": null,
+      "sameDirectory": false,
+      "showCurrent": false,
+      "needsPages": false
+    },
+    {
+      "id": "pdf.rotate-left",
+      "label": "Rotate anticlockwise",
+      "menu": "PDF",
+      "group": 30,
+      "order": 4,
+      "outputFormat": "pdf",
+      "minimumCount": 1,
+      "maximumCount": null,
+      "sameDirectory": false,
+      "showCurrent": false,
+      "needsPages": false
+    },
+    {
+      "id": "convert.txt",
+      "label": "Plain text",
+      "menu": "Convert",
+      "group": 10,
+      "order": 20,
+      "outputFormat": "txt",
+      "minimumCount": 1,
+      "maximumCount": null,
+      "sameDirectory": false,
+      "showCurrent": true,
+      "needsPages": false
+    },
+    {
+      "id": "pdf.compress",
+      "label": "Compress PDF",
+      "menu": "PDF",
+      "group": 40,
+      "order": 0,
+      "outputFormat": "pdf",
+      "minimumCount": 1,
+      "maximumCount": null,
+      "sameDirectory": false,
+      "showCurrent": false,
+      "needsPages": false
+    },
+    {
+      "id": "convert.md",
+      "label": "Markdown",
+      "menu": "Convert",
+      "group": 10,
+      "order": 30,
+      "outputFormat": "md",
+      "minimumCount": 1,
+      "maximumCount": null,
+      "sameDirectory": false,
+      "showCurrent": true,
+      "needsPages": false
+    },
+    {
+      "id": "convert.html",
+      "label": "HTML",
+      "menu": "Convert",
+      "group": 10,
+      "order": 30,
+      "outputFormat": "html",
+      "minimumCount": 1,
+      "maximumCount": null,
+      "sameDirectory": false,
+      "showCurrent": true,
+      "needsPages": false
+    },
+    {
+      "id": "convert.rtf",
+      "label": "RTF",
+      "menu": "Convert",
+      "group": 10,
+      "order": 30,
+      "outputFormat": "rtf",
+      "minimumCount": 1,
+      "maximumCount": null,
+      "sameDirectory": false,
+      "showCurrent": true,
+      "needsPages": false
+    },
+    {
+      "id": "convert.doc",
+      "label": "DOC",
+      "menu": "Convert",
+      "group": 10,
+      "order": 30,
+      "outputFormat": "doc",
+      "minimumCount": 1,
+      "maximumCount": null,
+      "sameDirectory": false,
+      "showCurrent": true,
+      "needsPages": false
+    },
+    {
+      "id": "convert.docx",
+      "label": "DOCX",
+      "menu": "Convert",
+      "group": 10,
+      "order": 30,
+      "outputFormat": "docx",
+      "minimumCount": 1,
+      "maximumCount": null,
+      "sameDirectory": false,
+      "showCurrent": true,
+      "needsPages": false
+    },
+    {
+      "id": "convert.rtfd",
+      "label": "RTFD",
+      "menu": "Convert",
+      "group": 10,
+      "order": 30,
+      "outputFormat": "rtfd",
+      "minimumCount": 1,
+      "maximumCount": null,
+      "sameDirectory": false,
+      "showCurrent": true,
+      "needsPages": false
+    },
+    {
+      "id": "convert.epub",
+      "label": "EPUB",
+      "menu": "Convert",
+      "group": 10,
+      "order": 30,
+      "outputFormat": "epub",
+      "minimumCount": 1,
+      "maximumCount": null,
+      "sameDirectory": false,
+      "showCurrent": true,
+      "needsPages": false
+    },
+    {
+      "id": "convert.csv",
+      "label": "CSV",
+      "menu": "Convert",
+      "group": 10,
+      "order": 30,
+      "outputFormat": "csv",
+      "minimumCount": 1,
+      "maximumCount": null,
+      "sameDirectory": false,
+      "showCurrent": true,
+      "needsPages": false
+    },
+    {
+      "id": "convert.tsv",
+      "label": "TSV",
+      "menu": "Convert",
+      "group": 10,
+      "order": 30,
+      "outputFormat": "tsv",
+      "minimumCount": 1,
+      "maximumCount": null,
+      "sameDirectory": false,
+      "showCurrent": true,
+      "needsPages": false
+    },
+    {
+      "id": "convert.json",
+      "label": "JSON",
+      "menu": "Convert",
+      "group": 10,
+      "order": 30,
+      "outputFormat": "json",
+      "minimumCount": 1,
+      "maximumCount": null,
+      "sameDirectory": false,
+      "showCurrent": true,
+      "needsPages": false
+    },
+    {
+      "id": "convert.yaml",
+      "label": "YAML",
+      "menu": "Convert",
+      "group": 10,
+      "order": 30,
+      "outputFormat": "yaml",
+      "minimumCount": 1,
+      "maximumCount": null,
+      "sameDirectory": false,
+      "showCurrent": true,
+      "needsPages": false
+    },
+    {
+      "id": "convert.toml",
+      "label": "TOML",
+      "menu": "Convert",
+      "group": 10,
+      "order": 30,
+      "outputFormat": "toml",
+      "minimumCount": 1,
+      "maximumCount": null,
+      "sameDirectory": false,
+      "showCurrent": true,
+      "needsPages": false
+    },
+    {
+      "id": "convert.xml",
+      "label": "XML",
+      "menu": "Convert",
+      "group": 10,
+      "order": 30,
+      "outputFormat": "xml",
+      "minimumCount": 1,
+      "maximumCount": null,
+      "sameDirectory": false,
+      "showCurrent": true,
+      "needsPages": false
+    },
+    {
+      "id": "convert.xlsx",
+      "label": "XLSX",
+      "menu": "Convert",
+      "group": 10,
+      "order": 30,
+      "outputFormat": "xlsx",
+      "minimumCount": 1,
+      "maximumCount": null,
+      "sameDirectory": false,
+      "showCurrent": true,
+      "needsPages": false
+    },
+    {
+      "id": "plist.xml",
+      "label": "XML property list",
+      "menu": "Convert",
+      "group": 10,
+      "order": 0,
+      "outputFormat": "plist",
+      "minimumCount": 1,
+      "maximumCount": null,
+      "sameDirectory": false,
+      "showCurrent": false,
+      "needsPages": false
+    },
+    {
+      "id": "plist.binary",
+      "label": "Binary property list",
+      "menu": "Convert",
+      "group": 10,
+      "order": 0,
+      "outputFormat": "plist",
+      "minimumCount": 1,
+      "maximumCount": null,
+      "sameDirectory": false,
+      "showCurrent": false,
+      "needsPages": false
+    },
+    {
+      "id": "convert.mp4",
+      "label": "MP4",
+      "menu": "Convert",
+      "group": 10,
+      "order": 10,
+      "outputFormat": "mp4",
+      "minimumCount": 1,
+      "maximumCount": null,
+      "sameDirectory": false,
+      "showCurrent": true,
+      "needsPages": false
+    },
+    {
+      "id": "convert.mov",
+      "label": "MOV",
+      "menu": "Convert",
+      "group": 10,
+      "order": 10,
+      "outputFormat": "mov",
+      "minimumCount": 1,
+      "maximumCount": null,
+      "sameDirectory": false,
+      "showCurrent": true,
+      "needsPages": false
+    },
+    {
+      "id": "convert.mkv",
+      "label": "MKV",
+      "menu": "Convert",
+      "group": 10,
+      "order": 10,
+      "outputFormat": "mkv",
+      "minimumCount": 1,
+      "maximumCount": null,
+      "sameDirectory": false,
+      "showCurrent": true,
+      "needsPages": false
+    },
+    {
+      "id": "convert.webm",
+      "label": "WebM",
+      "menu": "Convert",
+      "group": 10,
+      "order": 10,
+      "outputFormat": "webm",
+      "minimumCount": 1,
+      "maximumCount": null,
+      "sameDirectory": false,
+      "showCurrent": true,
+      "needsPages": false
+    },
+    {
+      "id": "convert.gif",
+      "label": "GIF",
+      "menu": "Convert",
+      "group": 10,
+      "order": 10,
+      "outputFormat": "gif",
+      "minimumCount": 1,
+      "maximumCount": null,
+      "sameDirectory": false,
+      "showCurrent": true,
+      "needsPages": false
+    },
+    {
+      "id": "convert.mp3",
+      "label": "MP3",
+      "menu": "Convert",
+      "group": 10,
+      "order": 10,
+      "outputFormat": "mp3",
+      "minimumCount": 1,
+      "maximumCount": null,
+      "sameDirectory": false,
+      "showCurrent": true,
+      "needsPages": false
+    },
+    {
+      "id": "convert.m4a",
+      "label": "M4A",
+      "menu": "Convert",
+      "group": 10,
+      "order": 10,
+      "outputFormat": "m4a",
+      "minimumCount": 1,
+      "maximumCount": null,
+      "sameDirectory": false,
+      "showCurrent": true,
+      "needsPages": false
+    },
+    {
+      "id": "convert.wav",
+      "label": "WAV",
+      "menu": "Convert",
+      "group": 10,
+      "order": 10,
+      "outputFormat": "wav",
+      "minimumCount": 1,
+      "maximumCount": null,
+      "sameDirectory": false,
+      "showCurrent": true,
+      "needsPages": false
+    },
+    {
+      "id": "convert.flac",
+      "label": "FLAC",
+      "menu": "Convert",
+      "group": 10,
+      "order": 10,
+      "outputFormat": "flac",
+      "minimumCount": 1,
+      "maximumCount": null,
+      "sameDirectory": false,
+      "showCurrent": true,
+      "needsPages": false
+    },
+    {
+      "id": "convert.aiff",
+      "label": "AIFF",
+      "menu": "Convert",
+      "group": 10,
+      "order": 10,
+      "outputFormat": "aiff",
+      "minimumCount": 1,
+      "maximumCount": null,
+      "sameDirectory": false,
+      "showCurrent": true,
+      "needsPages": false
+    },
+    {
+      "id": "convert.m4r",
+      "label": "Ringtone, first 40 seconds",
+      "menu": "Convert",
+      "group": 10,
+      "order": 10,
+      "outputFormat": "m4r",
+      "minimumCount": 1,
+      "maximumCount": null,
+      "sameDirectory": false,
+      "showCurrent": true,
+      "needsPages": false
+    },
+    {
+      "id": "convert.srt",
+      "label": "SRT",
+      "menu": "Convert",
+      "group": 10,
+      "order": 10,
+      "outputFormat": "srt",
+      "minimumCount": 1,
+      "maximumCount": null,
+      "sameDirectory": false,
+      "showCurrent": true,
+      "needsPages": false
+    },
+    {
+      "id": "convert.vtt",
+      "label": "WebVTT",
+      "menu": "Convert",
+      "group": 10,
+      "order": 10,
+      "outputFormat": "vtt",
+      "minimumCount": 1,
+      "maximumCount": null,
+      "sameDirectory": false,
+      "showCurrent": true,
+      "needsPages": false
+    }
+  ],
+  "routes": [
+    {
+      "action": "convert.jpg",
+      "handler": "image",
+      "backend": "native",
+      "priority": 10,
+      "label": null,
+      "group": null,
+      "options": {},
+      "from": [
+        "jpg",
+        "png",
+        "tiff",
+        "heic",
+        "bmp",
+        "webp",
+        "gif",
+        "avif",
+        "psd"
+      ]
+    },
+    {
+      "action": "convert.png",
+      "handler": "image",
+      "backend": "native",
+      "priority": 10,
+      "label": null,
+      "group": null,
+      "options": {},
+      "from": [
+        "jpg",
+        "png",
+        "tiff",
+        "heic",
+        "bmp",
+        "webp",
+        "gif",
+        "avif",
+        "psd"
+      ]
+    },
+    {
+      "action": "convert.heic",
+      "handler": "image",
+      "backend": "native",
+      "priority": 10,
+      "label": null,
+      "group": null,
+      "options": {},
+      "from": [
+        "jpg",
+        "png",
+        "tiff",
+        "heic",
+        "bmp",
+        "webp",
+        "gif",
+        "avif",
+        "psd"
+      ]
+    },
+    {
+      "action": "convert.tiff",
+      "handler": "image",
+      "backend": "native",
+      "priority": 10,
+      "label": null,
+      "group": null,
+      "options": {},
+      "from": [
+        "jpg",
+        "png",
+        "tiff",
+        "heic",
+        "bmp",
+        "webp",
+        "gif",
+        "avif",
+        "psd"
+      ]
+    },
+    {
+      "action": "convert.webp",
+      "handler": "image.extra",
+      "backend": "magick",
+      "priority": 10,
+      "label": null,
+      "group": null,
+      "options": {},
+      "from": [
+        "jpg",
+        "png",
+        "tiff",
+        "heic",
+        "bmp",
+        "webp",
+        "gif",
+        "avif",
+        "psd"
+      ]
+    },
+    {
+      "action": "convert.avif",
+      "handler": "image.extra",
+      "backend": "magick",
+      "priority": 10,
+      "label": null,
+      "group": null,
+      "options": {},
+      "from": [
+        "jpg",
+        "png",
+        "tiff",
+        "heic",
+        "bmp",
+        "webp",
+        "gif",
+        "avif",
+        "psd"
+      ]
+    },
+    {
+      "action": "convert.icns",
+      "handler": "image.extra",
+      "backend": "magick",
+      "priority": 10,
+      "label": null,
+      "group": null,
+      "options": {
+        "note": "The image is fitted without cropping; small images are upscaled to supply standard icon sizes."
+      },
+      "from": [
+        "jpg",
+        "png",
+        "tiff",
+        "heic",
+        "bmp",
+        "webp",
+        "gif",
+        "avif",
+        "psd"
+      ]
+    },
+    {
+      "action": "convert.ico",
+      "handler": "image.extra",
+      "backend": "magick",
+      "priority": 10,
+      "label": null,
+      "group": null,
+      "options": {
+        "note": "The image is fitted without cropping; small images are upscaled to supply standard icon sizes."
+      },
+      "from": [
+        "jpg",
+        "png",
+        "tiff",
+        "heic",
+        "bmp",
+        "webp",
+        "gif",
+        "avif",
+        "psd"
+      ]
+    },
+    {
+      "action": "convert.pdf",
+      "handler": "image.pdf",
+      "backend": "native",
+      "priority": 10,
+      "label": "PDF, one per image",
+      "group": null,
+      "options": {},
+      "from": [
+        "jpg",
+        "png",
+        "tiff",
+        "heic",
+        "bmp",
+        "webp",
+        "gif",
+        "avif",
+        "psd"
+      ]
+    },
+    {
+      "action": "convert.png",
+      "handler": "image.extra",
+      "backend": "magick",
+      "priority": 10,
+      "label": null,
+      "group": null,
+      "options": {},
+      "from": [
+        "svg"
+      ]
+    },
+    {
+      "action": "convert.jpg",
+      "handler": "image.extra",
+      "backend": "magick",
+      "priority": 10,
+      "label": null,
+      "group": null,
+      "options": {},
+      "from": [
+        "svg"
+      ]
+    },
+    {
+      "action": "convert.pdf",
+      "handler": "image.extra",
+      "backend": "magick",
+      "priority": 10,
+      "label": "PDF, rasterised",
+      "group": null,
+      "options": {},
+      "from": [
+        "svg"
+      ]
+    },
+    {
+      "action": "pdf.combine-images",
+      "handler": "image.pdf",
+      "backend": "native",
+      "priority": 10,
+      "label": null,
+      "group": null,
+      "options": {},
+      "from": [
+        "jpg",
+        "png",
+        "tiff",
+        "heic",
+        "bmp",
+        "webp",
+        "gif",
+        "avif",
+        "psd"
+      ]
+    },
+    {
+      "action": "pdf.combine",
+      "handler": "pdf",
+      "backend": "native",
+      "priority": 10,
+      "label": null,
+      "group": null,
+      "options": {},
+      "from": [
+        "pdf"
+      ]
+    },
+    {
+      "action": "pdf.split",
+      "handler": "pdf",
+      "backend": "native",
+      "priority": 10,
+      "label": null,
+      "group": null,
+      "options": {},
+      "from": [
+        "pdf"
+      ]
+    },
+    {
+      "action": "pdf.extract",
+      "handler": "pdf",
+      "backend": "native",
+      "priority": 10,
+      "label": null,
+      "group": null,
+      "options": {},
+      "from": [
+        "pdf"
+      ]
+    },
+    {
+      "action": "pdf.remove",
+      "handler": "pdf",
+      "backend": "native",
+      "priority": 10,
+      "label": null,
+      "group": null,
+      "options": {},
+      "from": [
+        "pdf"
+      ]
+    },
+    {
+      "action": "pdf.rotate-right",
+      "handler": "pdf",
+      "backend": "native",
+      "priority": 10,
+      "label": null,
+      "group": null,
+      "options": {},
+      "from": [
+        "pdf"
+      ]
+    },
+    {
+      "action": "pdf.rotate-left",
+      "handler": "pdf",
+      "backend": "native",
+      "priority": 10,
+      "label": null,
+      "group": null,
+      "options": {},
+      "from": [
+        "pdf"
+      ]
+    },
+    {
+      "action": "convert.png",
+      "handler": "pdf.raster",
+      "backend": "pdftoppm",
+      "priority": 10,
+      "label": "PNG, one per page",
+      "group": null,
+      "options": {},
+      "from": [
+        "pdf"
+      ]
+    },
+    {
+      "action": "convert.jpg",
+      "handler": "pdf.raster",
+      "backend": "pdftoppm",
+      "priority": 10,
+      "label": "JPEG, one per page",
+      "group": null,
+      "options": {},
+      "from": [
+        "pdf"
+      ]
+    },
+    {
+      "action": "convert.txt",
+      "handler": "pdf.text",
+      "backend": "pdftotext",
+      "priority": 10,
+      "label": null,
+      "group": null,
+      "options": {},
+      "from": [
+        "pdf"
+      ]
+    },
+    {
+      "action": "pdf.compress",
+      "handler": "pdf.compress",
+      "backend": "qpdf",
+      "priority": 10,
+      "label": null,
+      "group": null,
+      "options": {},
+      "from": [
+        "pdf"
+      ]
+    },
+    {
+      "action": "convert.pdf",
+      "handler": "office",
+      "backend": "soffice",
+      "priority": 10,
+      "label": null,
+      "group": 0,
+      "options": {},
+      "from": [
+        "docx",
+        "doc",
+        "odt",
+        "rtf",
+        "txt",
+        "pptx",
+        "ppt",
+        "odp",
+        "xlsx",
+        "xls",
+        "ods"
+      ]
+    },
+    {
+      "action": "convert.png",
+      "handler": "office.raster",
+      "backend": "soffice",
+      "priority": 10,
+      "label": "PNG, one per slide",
+      "group": null,
+      "options": {},
+      "requires": [
+        "pdftoppm"
+      ],
+      "from": [
+        "pptx",
+        "ppt",
+        "odp"
+      ]
+    },
+    {
+      "action": "convert.pdf",
+      "handler": "rtfd.pdf",
+      "backend": "soffice",
+      "priority": 10,
+      "label": null,
+      "group": null,
+      "options": {},
+      "from": [
+        "rtfd"
+      ]
+    },
+    {
+      "action": "convert.pdf",
+      "handler": "pandoc.pdf",
+      "backend": "pandoc",
+      "priority": 10,
+      "label": null,
+      "group": null,
+      "options": {},
+      "requires": [
+        "soffice"
+      ],
+      "from": [
+        "md",
+        "html",
+        "epub"
+      ]
+    },
+    {
+      "action": "convert.txt",
+      "handler": "textutil",
+      "backend": "textutil",
+      "priority": 10,
+      "label": null,
+      "group": null,
+      "options": {},
+      "from": [
+        "txt",
+        "rtf",
+        "rtfd",
+        "doc",
+        "docx",
+        "html"
+      ]
+    },
+    {
+      "action": "convert.rtf",
+      "handler": "textutil",
+      "backend": "textutil",
+      "priority": 10,
+      "label": null,
+      "group": null,
+      "options": {},
+      "from": [
+        "txt",
+        "rtf",
+        "rtfd",
+        "doc",
+        "docx",
+        "html"
+      ]
+    },
+    {
+      "action": "convert.doc",
+      "handler": "textutil",
+      "backend": "textutil",
+      "priority": 10,
+      "label": null,
+      "group": null,
+      "options": {},
+      "from": [
+        "txt",
+        "rtf",
+        "rtfd",
+        "doc",
+        "docx",
+        "html"
+      ]
+    },
+    {
+      "action": "convert.docx",
+      "handler": "textutil",
+      "backend": "textutil",
+      "priority": 10,
+      "label": null,
+      "group": null,
+      "options": {},
+      "from": [
+        "txt",
+        "rtf",
+        "rtfd",
+        "doc",
+        "docx",
+        "html"
+      ]
+    },
+    {
+      "action": "convert.rtfd",
+      "handler": "textutil",
+      "backend": "textutil",
+      "priority": 10,
+      "label": null,
+      "group": null,
+      "options": {},
+      "from": [
+        "txt",
+        "rtf",
+        "rtfd",
+        "doc",
+        "docx",
+        "html"
+      ]
+    },
+    {
+      "action": "convert.html",
+      "handler": "textutil",
+      "backend": "textutil",
+      "priority": 10,
+      "label": null,
+      "group": null,
+      "options": {},
+      "from": [
+        "txt",
+        "rtf",
+        "rtfd",
+        "doc",
+        "docx",
+        "html"
+      ]
+    },
+    {
+      "action": "convert.md",
+      "handler": "pandoc",
+      "backend": "pandoc",
+      "priority": 5,
+      "label": null,
+      "group": null,
+      "options": {},
+      "from": [
+        "docx",
+        "odt",
+        "html",
+        "epub",
+        "rst",
+        "tex",
+        "md"
+      ]
+    },
+    {
+      "action": "convert.html",
+      "handler": "pandoc",
+      "backend": "pandoc",
+      "priority": 5,
+      "label": null,
+      "group": null,
+      "options": {},
+      "from": [
+        "docx",
+        "odt",
+        "html",
+        "epub",
+        "rst",
+        "tex",
+        "md"
+      ]
+    },
+    {
+      "action": "convert.txt",
+      "handler": "pandoc",
+      "backend": "pandoc",
+      "priority": 5,
+      "label": null,
+      "group": null,
+      "options": {},
+      "from": [
+        "docx",
+        "odt",
+        "html",
+        "epub",
+        "rst",
+        "tex",
+        "md"
+      ]
+    },
+    {
+      "action": "convert.epub",
+      "handler": "pandoc",
+      "backend": "pandoc",
+      "priority": 10,
+      "label": null,
+      "group": null,
+      "options": {},
+      "from": [
+        "md",
+        "html",
+        "docx",
+        "odt"
+      ]
+    },
+    {
+      "action": "convert.csv",
+      "handler": "office",
+      "backend": "soffice",
+      "priority": 10,
+      "label": "CSV, one per sheet",
+      "group": null,
+      "options": {},
+      "from": [
+        "xlsx",
+        "xls",
+        "ods"
+      ]
+    },
+    {
+      "action": "convert.xlsx",
+      "handler": "office",
+      "backend": "soffice",
+      "priority": 10,
+      "label": null,
+      "group": null,
+      "options": {},
+      "from": [
+        "csv",
+        "tsv"
+      ]
+    },
+    {
+      "action": "convert.csv",
+      "handler": "data",
+      "backend": "native",
+      "priority": 10,
+      "label": null,
+      "group": null,
+      "options": {},
+      "from": [
+        "csv",
+        "tsv"
+      ]
+    },
+    {
+      "action": "convert.tsv",
+      "handler": "data",
+      "backend": "native",
+      "priority": 10,
+      "label": null,
+      "group": null,
+      "options": {},
+      "from": [
+        "csv",
+        "tsv"
+      ]
+    },
+    {
+      "action": "convert.json",
+      "handler": "data",
+      "backend": "native",
+      "priority": 10,
+      "label": null,
+      "group": null,
+      "options": {},
+      "from": [
+        "csv",
+        "tsv"
+      ]
+    },
+    {
+      "action": "convert.md",
+      "handler": "data",
+      "backend": "native",
+      "priority": 10,
+      "label": null,
+      "group": null,
+      "options": {},
+      "from": [
+        "csv",
+        "tsv"
+      ]
+    },
+    {
+      "action": "convert.yaml",
+      "handler": "data",
+      "backend": "yq",
+      "priority": 10,
+      "label": null,
+      "group": null,
+      "options": {},
+      "from": [
+        "json"
+      ]
+    },
+    {
+      "action": "convert.xml",
+      "handler": "data",
+      "backend": "native",
+      "priority": 10,
+      "label": null,
+      "group": null,
+      "options": {},
+      "from": [
+        "json"
+      ]
+    },
+    {
+      "action": "convert.csv",
+      "handler": "data",
+      "backend": "native",
+      "priority": 10,
+      "label": null,
+      "group": null,
+      "options": {
+        "note": "Missing and null JSON fields both become empty CSV cells."
+      },
+      "from": [
+        "json"
+      ]
+    },
+    {
+      "action": "convert.toml",
+      "handler": "data",
+      "backend": "yq",
+      "priority": 10,
+      "label": null,
+      "group": null,
+      "options": {},
+      "from": [
+        "json"
+      ]
+    },
+    {
+      "action": "convert.json",
+      "handler": "data",
+      "backend": "yq",
+      "priority": 10,
+      "label": null,
+      "group": null,
+      "options": {},
+      "from": [
+        "yaml",
+        "toml"
+      ]
+    },
+    {
+      "action": "convert.json",
+      "handler": "data",
+      "backend": "native",
+      "priority": 10,
+      "label": null,
+      "group": null,
+      "options": {
+        "note": "XML elements keep their names; attributes use @name and leaf text stays a string. Repeated elements become ordered arrays; mixed content and namespaces are rejected."
+      },
+      "from": [
+        "xml"
+      ]
+    },
+    {
+      "action": "plist.xml",
+      "handler": "plist",
+      "backend": "native",
+      "priority": 10,
+      "label": null,
+      "group": null,
+      "options": {},
+      "from": [
+        "plist"
+      ]
+    },
+    {
+      "action": "plist.binary",
+      "handler": "plist",
+      "backend": "native",
+      "priority": 10,
+      "label": null,
+      "group": null,
+      "options": {},
+      "from": [
+        "plist"
+      ]
+    },
+    {
+      "action": "convert.mp4",
+      "handler": "media",
+      "backend": "ffmpeg",
+      "priority": 10,
+      "label": null,
+      "group": null,
+      "options": {},
+      "requires": [
+        "ffprobe"
+      ],
+      "from": [
+        "mov",
+        "mp4",
+        "mkv",
+        "avi",
+        "webm",
+        "m4v",
+        "flv",
+        "wmv",
+        "gif"
+      ]
+    },
+    {
+      "action": "convert.mov",
+      "handler": "media",
+      "backend": "ffmpeg",
+      "priority": 10,
+      "label": null,
+      "group": null,
+      "options": {},
+      "requires": [
+        "ffprobe"
+      ],
+      "from": [
+        "mov",
+        "mp4",
+        "mkv",
+        "avi",
+        "webm",
+        "m4v",
+        "flv",
+        "wmv"
+      ]
+    },
+    {
+      "action": "convert.mkv",
+      "handler": "media",
+      "backend": "ffmpeg",
+      "priority": 10,
+      "label": null,
+      "group": null,
+      "options": {},
+      "requires": [
+        "ffprobe"
+      ],
+      "from": [
+        "mov",
+        "mp4",
+        "mkv",
+        "avi",
+        "webm",
+        "m4v",
+        "flv",
+        "wmv"
+      ]
+    },
+    {
+      "action": "convert.webm",
+      "handler": "media",
+      "backend": "ffmpeg",
+      "priority": 10,
+      "label": null,
+      "group": null,
+      "options": {},
+      "requires": [
+        "ffprobe"
+      ],
+      "from": [
+        "mov",
+        "mp4",
+        "mkv",
+        "avi",
+        "webm",
+        "m4v",
+        "flv",
+        "wmv"
+      ]
+    },
+    {
+      "action": "convert.gif",
+      "handler": "media",
+      "backend": "ffmpeg",
+      "priority": 10,
+      "label": null,
+      "group": null,
+      "options": {},
+      "requires": [
+        "ffprobe"
+      ],
+      "from": [
+        "mov",
+        "mp4",
+        "mkv",
+        "avi",
+        "webm",
+        "m4v",
+        "flv",
+        "wmv"
+      ]
+    },
+    {
+      "action": "convert.mp3",
+      "handler": "media",
+      "backend": "ffmpeg",
+      "priority": 10,
+      "label": null,
+      "group": null,
+      "options": {
+        "note": "One file per audio track for video inputs."
+      },
+      "requires": [
+        "ffprobe"
+      ],
+      "from": [
+        "mov",
+        "mp4",
+        "mkv",
+        "avi",
+        "webm",
+        "m4v",
+        "flv",
+        "wmv",
+        "mp3",
+        "wav",
+        "flac",
+        "aiff",
+        "m4a",
+        "ogg",
+        "opus",
+        "wma"
+      ]
+    },
+    {
+      "action": "convert.m4a",
+      "handler": "media",
+      "backend": "ffmpeg",
+      "priority": 10,
+      "label": null,
+      "group": null,
+      "options": {
+        "note": "One file per audio track for video inputs."
+      },
+      "requires": [
+        "ffprobe"
+      ],
+      "from": [
+        "mov",
+        "mp4",
+        "mkv",
+        "avi",
+        "webm",
+        "m4v",
+        "flv",
+        "wmv",
+        "mp3",
+        "wav",
+        "flac",
+        "aiff",
+        "m4a",
+        "ogg",
+        "opus",
+        "wma"
+      ]
+    },
+    {
+      "action": "convert.wav",
+      "handler": "media",
+      "backend": "ffmpeg",
+      "priority": 10,
+      "label": null,
+      "group": null,
+      "options": {
+        "note": "One file per audio track for video inputs."
+      },
+      "requires": [
+        "ffprobe"
+      ],
+      "from": [
+        "mov",
+        "mp4",
+        "mkv",
+        "avi",
+        "webm",
+        "m4v",
+        "flv",
+        "wmv",
+        "mp3",
+        "wav",
+        "flac",
+        "aiff",
+        "m4a",
+        "ogg",
+        "opus",
+        "wma"
+      ]
+    },
+    {
+      "action": "convert.flac",
+      "handler": "media",
+      "backend": "ffmpeg",
+      "priority": 10,
+      "label": null,
+      "group": null,
+      "options": {
+        "note": "One file per audio track for video inputs."
+      },
+      "requires": [
+        "ffprobe"
+      ],
+      "from": [
+        "mov",
+        "mp4",
+        "mkv",
+        "avi",
+        "webm",
+        "m4v",
+        "flv",
+        "wmv",
+        "mp3",
+        "wav",
+        "flac",
+        "aiff",
+        "m4a",
+        "ogg",
+        "opus",
+        "wma"
+      ]
+    },
+    {
+      "action": "convert.aiff",
+      "handler": "media",
+      "backend": "ffmpeg",
+      "priority": 10,
+      "label": null,
+      "group": null,
+      "options": {
+        "note": "One file per audio track for video inputs."
+      },
+      "requires": [
+        "ffprobe"
+      ],
+      "from": [
+        "mov",
+        "mp4",
+        "mkv",
+        "avi",
+        "webm",
+        "m4v",
+        "flv",
+        "wmv",
+        "mp3",
+        "wav",
+        "flac",
+        "aiff",
+        "m4a",
+        "ogg",
+        "opus",
+        "wma"
+      ]
+    },
+    {
+      "action": "convert.m4r",
+      "handler": "media",
+      "backend": "ffmpeg",
+      "priority": 10,
+      "label": null,
+      "group": null,
+      "options": {},
+      "requires": [
+        "ffprobe"
+      ],
+      "from": [
+        "mp3",
+        "m4a",
+        "wav"
+      ]
+    },
+    {
+      "action": "convert.srt",
+      "handler": "media",
+      "backend": "ffmpeg",
+      "priority": 10,
+      "label": null,
+      "group": null,
+      "options": {},
+      "requires": [
+        "ffprobe"
+      ],
+      "from": [
+        "srt",
+        "vtt",
+        "ass"
+      ]
+    },
+    {
+      "action": "convert.vtt",
+      "handler": "media",
+      "backend": "ffmpeg",
+      "priority": 10,
+      "label": null,
+      "group": null,
+      "options": {},
+      "requires": [
+        "ffprobe"
+      ],
+      "from": [
+        "srt",
+        "vtt",
+        "ass"
+      ]
+    }
+  ]
+}
