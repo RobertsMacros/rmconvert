@@ -2,7 +2,7 @@
 
 15 September 2026 · Apple silicon · macOS 27.0 (26A5425a) · app 0.1.0, build 2.
 
-## Automated checks
+## Automated conversion checks (build 2)
 
 **172 checks passed** across five suites, using generated files. These are representative behaviour checks, not proof that every possible document, codec or camera format converts correctly.
 
@@ -22,9 +22,9 @@ The slide fixture exported using LibreOffice’s interpreted page style. The tes
 
 The native test fixture for an intentionally malformed PDF emits a Core Graphics diagnostic. The suite handles that rejection and exits successfully.
 
-## Known icon defect
+## Build 3 icon replacement
 
-After these tests, a user reported that the Finder logo appears as a black box. The menu entries and actions work, but the branding renderer is not visually correct. Alternative native-symbol designs are proposals only.
+After the build 2 tests, a user reported that the Finder logo appeared as a black box. Build 3 removes the custom bitmap renderer and uses native monochrome system symbols for Convert and PDF. The updated app and extension built, signed, installed and registered successfully. Both icons retained a visible glyph and predominantly transparent pixels after secure image archiving. The Finder menu entries were inspected through accessibility, but the tool still could not return a Finder screenshot; final visual confirmation is pending. The 172 conversion checks below describe the preceding build; this icon-only change did not rerun those suites.
 
 ## Real app and Finder checks
 

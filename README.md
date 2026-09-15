@@ -2,7 +2,7 @@
 
 A local macOS file converter by Roberts Macros. The app adds **Convert** and **PDF** to Finder’s right-click menu, with Roberts Macros branding.
 
-**Status:** an early local-use build. The current Finder logo can appear as a black rectangle; native-symbol replacements are proposed but not yet implemented. See [known limitations](docs/VALIDATION.md).
+**Status:** an early local-use build. Build 3 replaces the bitmap Finder logo with native system symbols: opposing arrows for Convert and stacked pages for PDF. The full Roberts Macros logo remains in setup. See [validation and limitations](docs/VALIDATION.md).
 
 ## Using it
 

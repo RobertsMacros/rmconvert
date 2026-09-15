@@ -9,12 +9,12 @@ final class RMFinderSync: FIFinderSync {
     private let logger = Logger(subsystem: RMPaths.extensionID, category: "Finder")
     private var requests: [Int:JobRequest] = [:]
     private var nextTag = 1
-    private var brandIcon: NSImage?
+    private var menuIcons: [String:NSImage] = [:]
 
     override init() {
         super.init()
+        for menu in ["Convert", "PDF"] { menuIcons[menu] = Brand.menuIcon(for: menu) }
         if let resources = Bundle(for: RMFinderSync.self).resourceURL {
-            brandIcon = Brand.menuIcon(resources: resources)
             manifest = try? ConversionManifest.load(at: resources.appendingPathComponent("manifest.json"))
             if let data = try? Data(contentsOf: resources.appendingPathComponent("availability.json")), let names = try? JSONDecoder().decode([String].self, from: data) { available = Set(names) }
             if let bundled = try? Data(contentsOf:resources.appendingPathComponent("manifest.json")), UserDefaults.standard.data(forKey:"catalogueBuild") == bundled,
@@ -48,7 +48,7 @@ final class RMFinderSync: FIFinderSync {
         }
         for model in manifest.menus(for: urls, available: available) {
             let parent = NSMenuItem(title: model.label, action: nil, keyEquivalent: "")
-            parent.image = brandIcon
+            parent.image = menuIcons[model.label]
             let submenu = NSMenu(title: model.label); submenu.autoenablesItems = false
             var group: Int?
             for entry in model.items {
