@@ -70,13 +70,13 @@ We rejected cloud placeholders that were not downloaded; we did not implement th
 
 Logs record individual successes and failures with paths. A failed batch member does not conceal successful members. Our per-job logs are capped at 30 days/1,000 records, with a readable app view. A move journal used for recovery or undo is a different data store and should not simply inherit this diagnostic-log retention policy.
 
-## The icon lesson and build 3 replacement
+## The icon lesson and builds 3–4
 
 The full Roberts Macros bitmap looks correct in the setup window. We tried cropping it, deriving an alpha mask and using it as an `NSImage` template for both Finder menu headings.
 
 **A user subsequently reported a black box in Finder. Build 3 removes that rendering approach.** Earlier automated checks and menu accessibility inspection proved menu presence and behaviour, not that the icon’s pixels looked correct. Finder screenshots were unavailable through our UI tool; the report must take precedence over any earlier implication that branding was finished.
 
-We prepared alternatives using actual Apple system symbols: opposing arrows for Convert and stacked pages for PDF, a circular-arrow/document pair, or a restrained RM monogram. Build 3 now uses the opposing-arrow and stacked-page system symbols directly, replacing the custom bitmap template. Both symbols survived secure image archiving with transparent backgrounds. The corrected build was installed and the Finder extension refreshed. Actual Finder menu screenshots remain unavailable through the UI tool, so the pixel checks do not substitute for user visual confirmation. For the filer, a simple monochrome system symbol is the practical starting point, with the full brand in setup. Inspect the actual Finder menu in light, dark and selected states. A mockup is not that test. [Apple: SF Symbols](https://developer.apple.com/sf-symbols/)
+We prepared alternatives using actual Apple system symbols: opposing arrows for Convert and stacked pages for PDF, a circular-arrow/document pair, or a restrained RM monogram. Build 3 now uses the opposing-arrow and stacked-page system symbols directly, replacing the custom bitmap template. Both symbols survived secure image archiving with transparent backgrounds. The corrected build was installed and the Finder extension refreshed. The user confirmed that the symbols appeared, but their black tint was too strong. Build 4 applies an adaptive `secondaryLabelColor` palette with `isTemplate = false`; keeping template mode enabled would allow Finder to override that palette. Securely archived images rendered with transparent backgrounds and different light/dark colours. Actual Finder menu screenshots remain unavailable through the UI tool, so these checks do not prove exact matching or highlighted-state appearance. For the filer, a simple monochrome system symbol is the practical starting point, with the full brand in setup. Inspect the actual Finder menu in light, dark and selected states. A mockup is not that test. [Apple: SF Symbols](https://developer.apple.com/sf-symbols/)
 
 ## What changes for an automatic iCloud filer
 

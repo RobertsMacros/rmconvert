@@ -4,7 +4,7 @@ Updated 15 September 2026. This replaces the earlier proposal and duplicated bui
 
 ## Interaction
 
-The native Finder Sync extension supplies two top-level contextual menus: **Convert** and **PDF**. Build 3 uses native SF Symbols: opposing arrows for Convert and stacked pages for PDF. The full Roberts Macros logo appears in the setup window. Finder controls the surrounding menu appearance and placement.
+The native Finder Sync extension supplies two top-level contextual menus: **Convert** and **PDF**. Build 4 uses native SF Symbols with an adaptive secondary label colour: opposing arrows for Convert and stacked pages for PDF. The full Roberts Macros logo appears in the setup window. Finder controls the surrounding menu appearance and placement.
 
 **Convert** offers the intersection of explicitly configured formats for the selected files. Aliases are normalised. Files already in the chosen format are skipped; an all-current ordinary target is disabled where configured. One-to-many outputs receive a sibling folder. Missing backends remove affected routes. An incompatible selection receives a disabled explanatory child rather than an empty menu.
 
@@ -65,7 +65,7 @@ This is a local Apple silicon build, not a notarised release for arbitrary Macs.
 
 ## Acceptance and remaining work
 
-The app was built, signed and installed on the development Mac. Real Finder jobs have exercised image conversion, native page extraction and a PDF rotation with the setup app closed. Both separate menus are present without duplicate entries. The branded setup window was visually inspected; Finder menu screenshots are unavailable through the current UI tool, so menu-image pixels were not visually inspected despite the image being assigned to both actual menu items. A subsequent user report identified a black rectangle in Finder. Build 3 replaces that renderer with native system symbols. Both retain transparency through secure image archiving; user visual confirmation in Finder is separate from this check.
+The app was built, signed and installed on the development Mac. Real Finder jobs have exercised image conversion, native page extraction and a PDF rotation with the setup app closed. Both separate menus are present without duplicate entries. The branded setup window was visually inspected; Finder menu screenshots are unavailable through the current UI tool, so menu-image pixels were not visually inspected despite the image being assigned to both actual menu items. A subsequent user report identified a black rectangle in Finder. Build 3 replaces that renderer with native system symbols. The user confirmed the glyphs appeared, but requested a softer tint. Build 4 supplies an adaptive secondary label colour; archived-image rendering checks confirm transparency and light/dark adaptation. Actual Finder colour matching and highlighted appearance remain visually unverified.
 
 Automated verification covers native conversions, unchanged originals, concurrent output collisions, document/data and media routes, a 200-document Office batch, corrupt inputs, hidden/empty sheets, slide rasterisation, network denial and process timeouts. See [the validation record](VALIDATION.md) for measured results.
 

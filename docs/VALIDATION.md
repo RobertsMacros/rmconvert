@@ -24,7 +24,11 @@ The native test fixture for an intentionally malformed PDF emits a Core Graphics
 
 ## Build 3 icon replacement
 
-After the build 2 tests, a user reported that the Finder logo appeared as a black box. Build 3 removes the custom bitmap renderer and uses native monochrome system symbols for Convert and PDF. The updated app and extension built, signed, installed and registered successfully. Both icons retained a visible glyph and predominantly transparent pixels after secure image archiving. The Finder menu entries were inspected through accessibility, but the tool still could not return a Finder screenshot; final visual confirmation is pending. The 172 conversion checks below describe the preceding build; this icon-only change did not rerun those suites.
+After the build 2 tests, a user reported that the Finder logo appeared as a black box. Build 3 removes the custom bitmap renderer and uses native monochrome system symbols for Convert and PDF. The updated app and extension built, signed, installed and registered successfully. Both icons retained a visible glyph and predominantly transparent pixels after secure image archiving. The Finder menu entries were inspected through accessibility, but the tool still could not return a Finder screenshot; the user subsequently confirmed the glyphs appeared but found the black tint too strong. The 172 conversion checks above describe the preceding build; this icon-only change did not rerun those suites.
+
+## Build 4 icon colour
+
+The symbols now use a `secondaryLabelColor` palette with template tinting disabled. The same securely archived images were rendered in light and dark appearances: both retained predominantly transparent backgrounds, with translucent black glyphs in light mode and translucent white glyphs in dark mode. This confirms adaptive colour rather than a fixed black bitmap. Finder’s exact colour matching and highlighted-state appearance still require visual confirmation; the UI tool cannot capture Finder screenshots. Build 4 built and installed successfully, passed strict signature verification and catalogue validation (47 actions, 64 routes), and registered exactly one installed Finder extension. The Mac was locked during the subsequent UI check, so that check could not proceed. Conversion code is unchanged, so the earlier 172 conversion checks were not repeated.
 
 ## Real app and Finder checks
 
@@ -32,7 +36,7 @@ After the build 2 tests, a user reported that the Finder logo appeared as a blac
 - Installed at `/Applications/rmconvert.app`; active catalogue contains 47 actions and 64 routing rules.
 - All configured stable converter dependencies are present. No private Codex runtime is used.
 - Finder shows one **Convert** and one **PDF** menu. Earlier duplicate extension processes were cleared; the final menu inspection showed no duplicates.
-- The original Roberts Macros image is included in both extension and app resources. Both real Finder menu parent items receive the template logo. The setup window, including the full logo, was visually inspected. Finder menu screenshots were unavailable, so the menu-icon pixels themselves were not visually verified.
+- The original Roberts Macros image is included in both extension and app resources. Build 2 assigned the template logo to both real Finder menu parent items; builds 3–4 supersede it with native system symbols. The setup window, including the full logo, was visually inspected. Finder menu screenshots were unavailable, so the menu-icon pixels themselves were not visually verified.
 - A real Finder JPEG-to-PNG conversion succeeded on a filename containing an apostrophe, ampersand, accents, spaces and an emoji. The original was unchanged.
 - Native **Extract pages…** preview was inspected and used. Entering `4,1-2` created a three-page PDF containing Page 4, Page 1 and Page 2 in that order. The original was unchanged.
 - With the setup app closed and no app worker running, Finder **Rotate clockwise** launched the worker and created a new PDF. Independent inspection found four pages, each rotated 90 degrees.
