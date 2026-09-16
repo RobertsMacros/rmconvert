@@ -10,10 +10,11 @@ final class RMFinderSync: FIFinderSync {
     private var requests: [Int:JobRequest] = [:]
     private var nextTag = 1
     private var menuIcons: [String:NSImage] = [:]
+    private var menuIconAppearance: NSAppearance.Name?
 
     override init() {
         super.init()
-        for menu in ["Convert", "PDF"] { menuIcons[menu] = Brand.menuIcon(for: menu) }
+        refreshMenuIcons()
         if let resources = Bundle(for: RMFinderSync.self).resourceURL {
             manifest = try? ConversionManifest.load(at: resources.appendingPathComponent("manifest.json"))
             if let data = try? Data(contentsOf: resources.appendingPathComponent("availability.json")), let names = try? JSONDecoder().decode([String].self, from: data) { available = Set(names) }
@@ -38,9 +39,20 @@ final class RMFinderSync: FIFinderSync {
         }
     }
 
+    private func refreshMenuIcons() {
+        let appearance = NSApplication.shared.effectiveAppearance
+        guard menuIconAppearance != appearance.name else { return }
+        menuIcons.removeAll()
+        for menu in ["Convert", "PDF"] {
+            menuIcons[menu] = Brand.menuIcon(for: menu, appearance: appearance)
+        }
+        menuIconAppearance = appearance.name
+    }
+
     override func menu(for menuKind: FIMenuKind) -> NSMenu? {
         guard menuKind == .contextualMenuForItems,
               let urls = FIFinderSyncController.default().selectedItemURLs(), !urls.isEmpty else { return nil }
+        refreshMenuIcons()
         let root = NSMenu(); root.autoenablesItems = false
         if requests.count > 2000 { requests = requests.filter { $0.key > nextTag - 1000 } }
         guard let manifest else {
