@@ -1,6 +1,8 @@
 #!/bin/bash
 set -euo pipefail
 cd "$(dirname "$0")/.."
+source script/signing.sh
+signing_identity="${RMCONVERT_SIGNING_IDENTITY:--}"
 mode="${1:-}"
 case "$mode" in ''|--build-only|--verify|--logs|--telemetry) ;; *) echo 'Use --build-only, --verify, --logs or --telemetry'; exit 2;; esac
 app="/private/tmp/rmconvert-build-${UID}/rmconvert.app"
@@ -17,14 +19,15 @@ cp Resources/manifest.json "$ext/Contents/Resources/"
 cp Resources/RobertsMacros.png "$app/Contents/Resources/"
 cp Resources/RobertsMacros.png "$ext/Contents/Resources/"
 python3 script/package.py "$app"
-codesign --force --sign - "$app/Contents/MacOS/rmconvert"
-codesign --force --sign - "$app/Contents/MacOS/rmconvert-exec"
-codesign --force --sign - --entitlements Resources/Finder.entitlements "$ext"
-codesign --force --sign - "$app"
+codesign --force --sign "$signing_identity" "$app/Contents/MacOS/rmconvert"
+codesign --force --sign "$signing_identity" "$app/Contents/MacOS/rmconvert-exec"
+codesign --force --sign "$signing_identity" --entitlements Resources/Finder.entitlements "$ext"
+codesign --force --sign "$signing_identity" "$app"
 codesign --verify --deep --strict "$app"
 "$app/Contents/MacOS/rmconvert" --validate
 /usr/bin/ditto -c -k --keepParent "$app" "$PWD/outputs/rmconvert.zip"
 if [[ "$mode" == --build-only ]]; then exit 0; fi
+rmconvert_check_update_identity "$app" /Applications/rmconvert.app
 /usr/bin/open -n "$app"
 if [[ "$mode" == --verify ]]; then
     /usr/bin/pgrep -x RMConvertApp

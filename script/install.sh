@@ -1,6 +1,7 @@
 #!/bin/bash
 set -euo pipefail
 cd "$(dirname "$0")/.."
+source script/signing.sh
 source_app="/private/tmp/rmconvert-build-${UID}/rmconvert.app"
 if [[ ! -d "$source_app" ]]; then ./script/build_and_run.sh --build-only; fi
 open_setup=1
@@ -11,6 +12,7 @@ target="$destination/rmconvert.app"
 if [[ -e "$target" ]]; then
     bundle_id=$(/usr/libexec/PlistBuddy -c 'Print CFBundleIdentifier' "$target/Contents/Info.plist")
     [[ "$bundle_id" == com.robertsmacros.rmconvert ]] || { echo 'Another app already uses this name.'; exit 1; }
+    rmconvert_check_update_identity "$source_app" "$target"
     "$source_app/Contents/MacOS/rmconvert" --close-setup
     "$source_app/Contents/MacOS/rmconvert" --can-install
     /usr/bin/pluginkit -e ignore -i com.robertsmacros.rmconvert.Finder

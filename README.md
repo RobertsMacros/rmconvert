@@ -46,6 +46,14 @@ brew install --cask libreoffice
 
 `script/build_and_run.sh` is the build/run entry point. Build staging is in `/private/tmp/rmconvert-build-<uid>` to avoid iCloud metadata interfering with signing. `outputs/rmconvert.zip` contains the built app; it does not bundle the shared converter installations. Quit setup windows and finish conversions before updating. The installer refuses to replace an app with active workers.
 
+### Folder permission and updates
+
+macOS remembered Downloads permission across two consecutive Finder conversions on unchanged build 9, each using a fresh background worker. Ad hoc signatures identify a particular build, so rebuilding and replacing the app can invalidate the previous permission identity. This accounts for prompts after development updates; it does not establish that every repeated prompt has that cause. [Apple DTS: ad hoc signatures and TCC](https://developer.apple.com/forums/thread/819406)
+
+The installer now stops before replacing an existing app if the incoming build does not satisfy its signing requirement. The default build-and-run path also checks before launching the staged app; `--build-only` remains available. For subsequent builds, set `RMCONVERT_SIGNING_IDENTITY` to the same suitable signing certificate identity. This Mac currently has no valid code-signing identity configured, so certificate-signed update persistence has not been tested. Moving the current ad hoc installation to certificate signing is itself an identity change and may require a fresh grant.
+
+Only for an intentional migration, `RMCONVERT_ALLOW_IDENTITY_CHANGE=1` overrides the check with a warning. Do not use that option for routine updates while expecting existing permissions to persist. The scripts do not change macOS privacy settings. The guard applies to these scripts; manually replacing the app bypasses it.
+
 ```sh
 ./script/uninstall.sh
 ```
@@ -72,6 +80,7 @@ An optional catalogue at `~/.config/rmconvert/manifest.json` replaces the bundle
 
 ```sh
 ./script/test.sh
+bash tests/signing.sh
 python3 tests/external_routes.py
 python3 tests/images_and_batches.py
 python3 tests/media_routes.py

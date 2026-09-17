@@ -134,3 +134,11 @@ The user reported a Finder error after a successful conversion. The launch diagn
 `NSWorkspace.OpenConfiguration.promptsUserIfNeeded` defaults to true and includes launch-error UI. Set it to false for background dispatches and handle the completion error. The installed SDK explicitly says Gatekeeper UI is unaffected. This is not a way to acquire file access. Services still transfer their own selected URLs from the unsandboxed provider; they use the same quiet launch configuration.
 
 The final real Finder image conversion had one successful launch, a valid output, an unchanged source hash and no error dialogue in the post-completion Finder state. This is stronger evidence than checking output existence alone.
+
+## Retain a stable signing identity for permission continuity
+
+The user reported repeated Downloads permission requests during development. Build 9 reused the existing grant in two consecutive real Finder conversions with separate invisible workers. Its ad hoc designated requirement, however, identifies a particular build; rebuilding changes that requirement. Do not mistake permission loss across ad hoc updates for a failure to persist grants within the same installed build. [Apple DTS: ad hoc signatures and TCC](https://developer.apple.com/forums/thread/819406)
+
+For the filer, plan a stable certificate signing identity before repeated installation tests. Keep the bundle identifier and signing requirement stable and test actual permission continuity across a signed update. No valid certificate identity was available here, so that update test remains outstanding. Migrating an existing ad hoc installation may still need one new grant. Security-scoped bookmarks, where required by the chosen sandbox model, serve a separate purpose and are not a replacement for a stable code identity.
+
+rmconvert's build script accepts `RMCONVERT_SIGNING_IDENTITY`. Its installer and staged-launch path now verify the incoming code against the installed designated requirement and stop on mismatch. The opt-in `RMCONVERT_ALLOW_IDENTITY_CHANGE=1` is for deliberate migrations with a permission warning. Disposable tests verify the guard without changing the installed app or the privacy database. This protects the documented update workflow; it does not prevent a manual app replacement or prove every future macOS privacy decision.
