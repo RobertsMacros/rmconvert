@@ -34,6 +34,16 @@ The symbols now use a `secondaryLabelColor` palette with template tinting disabl
 
 The user’s screenshot established that build 4 still looked too dim beside Finder’s own icons. Its palette-rendered glyph opacity was approximately 0.25 in light mode and 0.30 in dark mode. Build 5 uses the enabled-label colour and applies it once to transparent bitmap representations, avoiding that compounded opacity. The same archive/restore checks passed for both icons at 1× and 2× in light and dark appearances: maximum opacity was 0.84–0.85, the glyph colour was black/white respectively, the background remained predominantly transparent, and both image resolutions survived archiving. The extension regenerates cached images when its effective appearance changes. Build 5 built and installed successfully, passed strict signature and catalogue validation (47 actions, 64 routes), and registered one installed extension. The refreshed Convert menu was present in Finder’s accessibility tree. Finder screenshots remained unavailable. These are rendering checks, not proof of matching Finder’s composited appearance or selected state.
 
+## Build 6 HDR photo conversion
+
+17 September 2026: the worker no longer rejects still images solely because they contain Apple or ISO HDR gain maps. It explicitly requests Image I/O’s SDR rendition, applies orientation and writes a new output without the gain map. Floating-point output, single-frame and pixel-limit guards remain in place.
+
+**74 core checks passed**, including 27 new HDR regression checks using a synthetic, non-photographic HEIC fixture. These cover gain-map presence, JPEG/PNG/TIFF/PDF conversion, SDR colour agreement, dimensions, integer pixels, SDR headroom, absent output gain maps, EXIF orientation and an unchanged source. The earlier external-backend suites were not rerun for this decoder change.
+
+The two real HEIC photos from the reported failure were retried with the installed build. Both produced 3024×4032, 8-bit SDR JPEGs. Source SHA-256 hashes were unchanged. Independent thumbnail comparisons against macOS’s oriented SDR decode measured mean channel differences of 4.66 and 4.84 on a 0–255 scale. This checks colour consistency; it is not a visual review of every pixel. Neither the photos nor their filenames, paths or job logs are included in this repository.
+
+Build, catalogue validation (47 actions, 64 routes), installation and strict signature verification passed; the installed bundle reports build 6.
+
 ## Real app and Finder checks
 
 - Built and signed the CLI, process helper, Finder extension and containing app; strict signature verification passed.

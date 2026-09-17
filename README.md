@@ -2,7 +2,7 @@
 
 A local macOS file converter by Roberts Macros. The app adds **Convert** and **PDF** to Finder’s right-click menu, with Roberts Macros branding.
 
-**Status:** an early local-use build. Build 5 draws native system symbols with macOS’s enabled-label colour: opposing arrows for Convert and stacked pages for PDF. The full Roberts Macros logo remains in setup. See [validation and limitations](docs/VALIDATION.md).
+**Status:** an early local-use build. Build 6 accepts HDR gain-map photos and converts them to standard dynamic range (SDR). Finder uses native system symbols with macOS’s enabled-label colour: opposing arrows for Convert and stacked pages for PDF. The full Roberts Macros logo remains in setup. See [validation and limitations](docs/VALIDATION.md).
 
 ## Using it
 
@@ -25,9 +25,9 @@ Open **rmconvert** in Applications to check Finder integration and installed con
 
 This build contains 47 actions and 64 explicit routing rules. It covers common static images, Office documents, Markdown/HTML/EPUB, spreadsheets, structured data, audio/video and subtitles. See [the route table](docs/ROUTES.md) for the exact routes.
 
-Conversion can change content that the destination cannot represent. Photoshop layers are flattened; animated images are rejected by static-image routes. JPEG uses a white background for transparency. Image ancillary metadata is not copied. Office and document layout depends on the source and installed fonts. PDF page tools create a new page document and do not preserve document outlines or signatures. Encrypted PDFs and interactive forms are rejected. Compression does not downsample images.
+Conversion can change content that the destination cannot represent. Photoshop layers are flattened; animated images are rejected by static-image routes. JPEG uses a white background for transparency. Still images, including iPhone HEIC photos with HDR gain maps, are decoded to SDR using macOS Image I/O. Outputs do not retain the HDR gain map. Image ancillary metadata is not copied. Office and document layout depends on the source and installed fonts. PDF page tools create a new page document and do not preserve document outlines or signatures. Encrypted PDFs and interactive forms are rejected. Compression does not downsample images.
 
-RAW camera files, OCR, PDF-to-Word, iWork formats and HDR tone mapping are outside this build. The menus use filename types; the worker checks the actual contents after selection. Video containers preserve compatible streams and encode incompatible ones; unsupported subtitles, attachments or HDR transformations cause a clear error. Audio extraction produces one file per track. Ringtones use the first 40 seconds.
+RAW camera files, OCR, PDF-to-Word, iWork formats and HDR-preserving export or custom HDR tone mapping are outside this build. The menus use filename types; the worker checks the actual contents after selection. Video containers preserve compatible streams and encode incompatible ones; unsupported subtitles, attachments or HDR transformations cause a clear error. Audio extraction produces one file per track. Ringtones use the first 40 seconds.
 
 Files must be downloaded locally and the output folder must be writable. Finder integration has been exercised in a normal home folder. Coverage in every cloud provider, Finder search view and external volume, and persistence after a reboot, remain unverified.
 

@@ -13,12 +13,64 @@ import CryptoKit
     static func rejects(_ name: String, _ body: () throws -> Void) throws {
         do { try body() } catch { checks += 1; return }; throw RMError("FAILED: should reject " + name)
     }
+    static func hdrImages(_ root: URL, engine: ConversionEngine) throws {
+        let fixture = root.appendingPathComponent("HDR photo.heic")
+        try FileManager.default.copyItem(at: URL(fileURLWithPath: "tests/fixtures/hdr-gain-map.heic"), to: fixture)
+        let before = try Data(contentsOf: fixture)
+        let source = CGImageSourceCreateWithURL(fixture as CFURL, nil)!
+        if #available(macOS 15.0, *) {
+            try expect(CGImageSourceCopyAuxiliaryDataInfoAtIndex(source, 0, kCGImageAuxiliaryDataTypeISOGainMap) != nil, "HDR fixture contains ISO gain map")
+        }
+        let baseline = CGImageSourceCreateImageAtIndex(source, 0, nil)!
+        func centre(_ image: CGImage) -> [Int] {
+            let canvas = CGContext(data: nil, width: 1, height: 1, bitsPerComponent: 8, bytesPerRow: 4,
+                space: CGColorSpace(name: CGColorSpace.sRGB)!, bitmapInfo: CGImageAlphaInfo.premultipliedLast.rawValue)!
+            canvas.draw(image, in: CGRect(x: 0, y: 0, width: 1, height: 1))
+            let bytes = canvas.data!.assumingMemoryBound(to: UInt8.self)
+            return (0..<3).map { Int(bytes[$0]) }
+        }
+        let expected = centre(baseline)
+        for format in ["jpg", "png", "tiff", "pdf"] {
+            let report = engine.run(JobRequest(action: "convert." + format, paths: [fixture.path], pages: nil))
+            try expect(report.failures == 0 && report.outputs.count == 1, "HDR photo to \(format)")
+            let output = URL(fileURLWithPath: report.outputs[0])
+            if format == "pdf" {
+                try expect(PDFDocument(url: output)?.pageCount == 1, "HDR photo PDF page")
+            } else {
+                let result = try ImageConversion.image(output)
+                try expect(result.width == baseline.width && result.height == baseline.height, "HDR photo output dimensions")
+                try expect(!result.bitmapInfo.contains(.floatComponents), "HDR photo output is integer SDR")
+                let actual = centre(result)
+                try expect(zip(actual, expected).allSatisfy { abs($0 - $1) <= 8 }, "HDR photo retains SDR colours")
+                let check = CGImageSourceCreateWithURL(output as CFURL, nil)!
+                try expect(CGImageSourceCopyAuxiliaryDataInfoAtIndex(check, 0, kCGImageAuxiliaryDataTypeHDRGainMap) == nil, "output has no Apple HDR gain map")
+                if #available(macOS 15.0, *) {
+                    try expect(CGImageSourceCopyAuxiliaryDataInfoAtIndex(check, 0, kCGImageAuxiliaryDataTypeISOGainMap) == nil, "output has no ISO HDR gain map")
+                    try expect(result.contentHeadroom <= 1, "output has SDR headroom")
+                }
+            }
+        }
+        if #available(macOS 15.0, *) {
+            let oriented = root.appendingPathComponent("HDR rotated.heic")
+            let destination = CGImageDestinationCreateWithURL(oriented as CFURL, UTType.heic.identifier as CFString, 1, nil)!
+            CGImageDestinationAddImage(destination, baseline, [kCGImagePropertyOrientation: 6] as CFDictionary)
+            let gain = CGImageSourceCopyAuxiliaryDataInfoAtIndex(source, 0, kCGImageAuxiliaryDataTypeISOGainMap)!
+            CGImageDestinationAddAuxiliaryDataInfo(destination, kCGImageAuxiliaryDataTypeISOGainMap, gain)
+            try expect(CGImageDestinationFinalize(destination), "oriented HDR fixture")
+            let result = try ImageConversion.image(oriented)
+            try expect(result.width == baseline.height && result.height == baseline.width, "HDR EXIF orientation applied")
+        }
+        let after = try Data(contentsOf: fixture)
+        try expect(after == before, "HDR source unchanged")
+    }
+
     static func main() throws {
         let root = URL(fileURLWithPath: CommandLine.arguments[1], isDirectory: true)
         try FileManager.default.createDirectory(at: root, withIntermediateDirectories: true)
         setenv("RMCONVERT_LOG_DIRECTORY", root.appendingPathComponent("logs").path, 1)
         let manifest = try ConversionManifest.load(at: URL(fileURLWithPath: "Resources/manifest.json"))
         let engine = ConversionEngine(manifest: manifest)
+        try hdrImages(root, engine: engine)
         let colour = CGColorSpace(name: CGColorSpace.sRGB)!
         let canvas = CGContext(data: nil, width: 120, height: 80, bitsPerComponent: 8, bytesPerRow: 0, space: colour, bitmapInfo: CGImageAlphaInfo.premultipliedLast.rawValue)!
         canvas.setFillColor(CGColor(red: 0.2, green: 0.4, blue: 0.8, alpha: 1)); canvas.fill(CGRect(x: 10, y: 10, width: 80, height: 60))

@@ -129,7 +129,7 @@ final class ConversionEngine {
                     guard let route = manifest.route(request.action, source: input, available: available) else { throw RMError("No available converter for this file and action. Open rmconvert and check converters.") }
                     conversionNote = route.options["note"] ?? ""
                     if ConversionManifest.extensionOf(input) == "psd" { conversionNote += " PSD layers are flattened to the composite image." }
-                    if route.handler == "image" || route.handler.hasPrefix("image.") { conversionNote += " Orientation is applied; ancillary metadata is not copied." }
+                    if route.handler == "image" || route.handler.hasPrefix("image.") { conversionNote += " Images are rendered in standard dynamic range (SDR); HDR gain maps are not retained. Orientation is applied; ancillary metadata is not copied." }
                     if route.handler == "pdf" { conversionNote += " New page document; document outlines and signatures are not preserved." }
                     let outputs = try convert(input, action: action, route: route, pages: request.pages)
                     report.results.append(FileResult(input: input.path, outputs: outputs.map(\.path), status: outputs.isEmpty ? "skipped" : "converted", detail: outputs.isEmpty ? "No change was needed." : conversionNote.trimmingCharacters(in:.whitespaces)))
@@ -353,12 +353,14 @@ final class ConversionEngine {
 enum ImageConversion {
     static func image(_ url: URL) throws -> CGImage {
         guard let source = CGImageSourceCreateWithURL(url as CFURL, nil), CGImageSourceGetCount(source) == 1 else { throw RMError("Choose a readable, single-frame image.") }
-        if CGImageSourceCopyAuxiliaryDataInfoAtIndex(source,0,kCGImageAuxiliaryDataTypeHDRGainMap) != nil { throw RMError("This image contains an HDR gain map. Export an SDR copy before converting it.") }
-        if #available(macOS 15.0, *), CGImageSourceCopyAuxiliaryDataInfoAtIndex(source,0,kCGImageAuxiliaryDataTypeISOGainMap) != nil { throw RMError("This image contains an HDR gain map. Export an SDR copy before converting it.") }
         let props = CGImageSourceCopyPropertiesAtIndex(source, 0, nil) as? [CFString: Any] ?? [:]
         let w = props[kCGImagePropertyPixelWidth] as? Int ?? 0, h = props[kCGImagePropertyPixelHeight] as? Int ?? 0
         guard w > 0, h > 0, Double(w) * Double(h) <= 120_000_000 else { throw RMError("This image exceeds the 120-megapixel processing limit.") }
-        guard let image = CGImageSourceCreateImageAtIndex(source, 0, [kCGImageSourceShouldCache: false] as CFDictionary) else { throw RMError("The image could not be decoded.") }
+        // Ask Image I/O for the standard-range rendition, including for Apple/ISO
+        // gain-map photos. Do not expand HDR and then clip its highlights.
+        let options: [CFString: Any] = [kCGImageSourceShouldCache: false,
+                                       kCGImageSourceDecodeRequest: kCGImageSourceDecodeToSDR]
+        guard let image = CGImageSourceCreateImageAtIndex(source, 0, options as CFDictionary) else { throw RMError("The image could not be decoded.") }
         guard !image.bitmapInfo.contains(.floatComponents) else { throw RMError("Floating-point raster images need an explicit SDR export before conversion.") }
         let orientation = props[kCGImagePropertyOrientation] as? Int32 ?? 1
         if orientation == 1 { return image }

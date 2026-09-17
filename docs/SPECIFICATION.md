@@ -40,7 +40,7 @@ Per-job JSON logs contain action, input/output paths, success/skip/failure and r
 
 | Family | Delivered behaviour |
 |---|---|
-| Static images | Native JPEG/PNG/TIFF/HEIC; ImageMagick WebP/AVIF/ICO; native sizing plus iconutil ICNS. Apply orientation, preserve a supported decoded colour space, reject floating-point/HDR gain maps. Maximum 120 megapixels. JPEG converts to 8-bit sRGB on white at quality 0.95; HEIC uses 0.90 and rejects input depth above 8 bits. Ancillary metadata is not copied. |
+| Static images | Native JPEG/PNG/TIFF/HEIC; ImageMagick WebP/AVIF/ICO; native sizing plus iconutil ICNS. Decode the SDR rendition with Image I/O (`kCGImageSourceDecodeRequest: kCGImageSourceDecodeToSDR`), including Apple/ISO HDR gain-map photos. Apply orientation and preserve a supported decoded colour space. Reject any remaining floating-point raster. HDR gain maps are not copied to outputs. Maximum 120 megapixels. JPEG converts to 8-bit sRGB on white at quality 0.95; HEIC uses 0.90 and rejects input depth above 8 bits. Ancillary metadata is not copied. |
 | Photoshop / animation | Use a readable PSD composite and report layer flattening. Ordinary raster routes reject multiple frames/pages. No RAW camera routes are advertised. |
 | SVG | Reject active content and unsupported external references. Render at twice nominal width with a minimum width of 1,024 pixels, maintaining aspect ratio and bounded dimensions. PDF output is rasterised. |
 | Image PDF | One image per page without pixel resampling; use plausible source DPI, otherwise 144 DPI. Multi-image combine uses filename order. This is decoded image embedding, not a guarantee of original compressed JPEG packet copying. |
