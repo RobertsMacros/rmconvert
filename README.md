@@ -2,7 +2,7 @@
 
 A local macOS file converter by Roberts Macros. The app adds **Convert** and **PDF** to Finder’s right-click menu, with Roberts Macros branding.
 
-**Status:** an early local-use build. Build 8 repairs the Finder-to-worker launch and adds native Services for cloud views. Its conversion engine has passed the [complete conversion matrix](docs/MATRIX_RESULTS.md): 54 source types and 330 source/action combinations. HDR gain-map photos convert to standard dynamic range (SDR). Finder uses native system symbols with macOS’s enabled-label colour: opposing arrows for Convert and stacked pages for PDF. The full Roberts Macros logo remains in setup. See [validation and limitations](docs/VALIDATION.md).
+**Status:** an early local-use build. Build 9 uses one background Finder launch, removing the erroneous launch-error pop-up. Native Services are also available for cloud views. Its conversion engine has passed the [complete conversion matrix](docs/MATRIX_RESULTS.md): 54 source types and 330 source/action combinations. HDR gain-map photos convert to standard dynamic range (SDR). Finder uses native system symbols with macOS’s enabled-label colour: opposing arrows for Convert and stacked pages for PDF. The full Roberts Macros logo remains in setup. See [validation and limitations](docs/VALIDATION.md).
 
 ## Using it
 
@@ -31,7 +31,7 @@ Conversion can change content that the destination cannot represent. Photoshop l
 
 RAW camera files, OCR, PDF-to-Word, iWork formats and HDR-preserving export or custom HDR tone mapping are outside this build. The menus use filename types; the worker checks the actual contents after selection. Video containers preserve compatible streams and encode incompatible ones; unsupported subtitles, attachments or HDR transformations cause a clear error. Audio extraction produces one file per track. FLAC renders floating-point and higher-depth audio as integer PCM up to 24 bits. Ringtones use the first 40 seconds.
 
-Files must be downloaded locally and the output folder must be writable. Finder attempts to pass selected file URLs through LaunchServices. If macOS refuses that hand-off, it sends only the validated private request and the worker uses its existing file permissions. Services pass the selection through the system pasteboard and open a separate worker. macOS may still require initial permission for protected locations; the app does not alter privacy controls. Finder integration has been exercised in a normal home folder. Coverage in every cloud provider, Finder search view and external volume, and persistence after a reboot, remain unverified.
+Files must be downloaded locally and the output folder must be writable. Finder sends one validated private request to the worker, which checks the selected files using its existing file permissions. Services pass the selection through the system pasteboard and open a separate worker. macOS may still require initial permission for protected locations; the app does not alter privacy controls. Finder integration has been exercised in a normal home folder. Coverage in every cloud provider, Finder search view and external volume, and persistence after a reboot, remain unverified.
 
 ## Build, install and remove
 

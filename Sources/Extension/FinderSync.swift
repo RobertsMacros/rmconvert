@@ -91,23 +91,17 @@ final class RMFinderSync: FIFinderSync {
         config.createsNewApplicationInstance = true
         config.addsToRecentItems = false
         config.activates = false
-        // Pass the actual selected URLs through LaunchServices as well as the job.
-        // This preserves a system file-open access grant when one is available.
-        NSWorkspace.shared.open([file] + captured.urls, withApplicationAt: appURL, configuration: config) { _, error in
-            guard let error else { self.logger.notice("Worker launched with selected URLs"); return }
-            let failure = error as NSError
-            self.logger.error("Selected-URL launch failed: \(failure.domain, privacy: .public) \(failure.code)")
-            // Finder selection URLs do not always carry a transferable sandbox grant.
-            // Retry the private request only while it is unconsumed. The containing
-            // app remains subject to normal macOS file permissions; this grants none.
-            guard FileManager.default.fileExists(atPath: file.path) else { return }
-            NSWorkspace.shared.open([file], withApplicationAt: appURL, configuration: config) { _, retryError in
-                if let retryError {
-                    let failure = retryError as NSError
-                    self.logger.error("Request launch failed: \(failure.domain, privacy: .public) \(failure.code)")
-                    try? FileManager.default.removeItem(at: file)
-                } else { self.logger.notice("Worker launched with private request") }
-            }
+        config.promptsUserIfNeeded = false
+        // Finder selection URLs may lack a transferable sandbox grant. Open only
+        // our private request; the worker checks inputs using its existing access.
+        // A failed speculative URL launch can display a Finder error even when a
+        // later retry converts successfully, so dispatch exactly once.
+        NSWorkspace.shared.open([file], withApplicationAt: appURL, configuration: config) { _, error in
+            if let error {
+                let failure = error as NSError
+                self.logger.error("Request launch failed: \(failure.domain, privacy: .public) \(failure.code)")
+                try? FileManager.default.removeItem(at: file)
+            } else { self.logger.notice("Worker launched with private request") }
         }
     }
 }

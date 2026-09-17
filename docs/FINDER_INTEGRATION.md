@@ -30,7 +30,7 @@ Finder selection
 
 **Launching an app is not proof that it received its arguments.** `NSWorkspace.openApplication` launched the app, but the command-line arguments were absent. The installed SDK explicitly says: “If the calling process is sandboxed, the value of this property is ignored.” That comment is on `NSWorkspace.OpenConfiguration.arguments`. Do not repeat this debugging detour.
 
-**Document-open delivery worked.** The extension writes a JSON request into its sandbox container, then calls `NSWorkspace.shared.open([requestURL] + selectedURLs, withApplicationAt: appURL, configuration: ...)`. The configuration creates a new app instance, avoids Recent Items and does not activate the ordinary worker. The app declares a private request document type and receives URLs through `application(_:open:)`.
+**Document-open delivery worked.** The extension writes a JSON request into its sandbox container, then calls `NSWorkspace.shared.open([requestURL], withApplicationAt: appURL, configuration: ...)` in build 9. The previous selected-URL attempt and fallback are superseded by the correction below. The configuration creates a new app instance, avoids Recent Items and does not activate the ordinary worker. The app declares a private request document type and receives URLs through `application(_:open:)`.
 
 The request folder uses mode 0700 and request files use 0600. The app validates the canonical folder, UUID filename, extension, current-user ownership, regular-file type and a 1 MB size limit before decoding. It then revalidates the operation and inputs. A received path is not permission to access or move a file.
 
@@ -126,3 +126,11 @@ Finder's iCloud view omitted the extension menu on this Mac, including after exp
 The installer refreshes the Services registry after registering the app. Modern Services do not support custom submenus, so two choice menus avoid placing every output format in Finder's Services list. [Apple: Services properties](https://developer.apple.com/library/archive/documentation/Cocoa/Conceptual/SysServices/Articles/properties.html)
 
 The Services entries and provider callback were verified, but the complete Services choice-to-output interaction remains awaiting manual confirmation: the UI tool could not reliably activate or inspect that accessory-app menu. Keep this limitation alongside the working local Finder action; do not inherit the fallback as fully accepted yet.
+
+## Build 9: a successful retry can still leave an error dialogue
+
+The user reported a Finder error after a successful conversion. The launch diagnostics matched a failed selected-URL attempt followed by a successful private-request retry. The final implementation sends only the private request from the sandboxed extension, once. Do not reinstate an optimistic attempt that is already known to fail in that context.
+
+`NSWorkspace.OpenConfiguration.promptsUserIfNeeded` defaults to true and includes launch-error UI. Set it to false for background dispatches and handle the completion error. The installed SDK explicitly says Gatekeeper UI is unaffected. This is not a way to acquire file access. Services still transfer their own selected URLs from the unsandboxed provider; they use the same quiet launch configuration.
+
+The final real Finder image conversion had one successful launch, a valid output, an unchanged source hash and no error dialogue in the post-completion Finder state. This is stronger evidence than checking output existence alone.

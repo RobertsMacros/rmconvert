@@ -96,6 +96,7 @@ final class ConversionServices: NSObject {
         let configuration = NSWorkspace.OpenConfiguration()
         configuration.createsNewApplicationInstance = true
         configuration.activates = false; configuration.addsToRecentItems = false
+        configuration.promptsUserIfNeeded = false
         NSWorkspace.shared.open([file] + urls, withApplicationAt: Bundle.main.bundleURL, configuration: configuration) { _, error in
             if let error {
                 self.logger.error("Service worker launch failed: \((error as NSError).domain, privacy: .public) \((error as NSError).code)")

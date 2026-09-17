@@ -62,6 +62,14 @@ Finder's iCloud-backed Documents view did not display Finder Sync menus. Explici
 
 Four installed-app background checks passed: successful and deliberately invalid images from the app-owned request folder, plus success and failure through the extension request-only fallback. All four logged zero visible worker windows and accessory activation at start and finish. A separate request-only PDF rotation produced a new PDF that passed `qpdf --check`; the original hash was unchanged. These are launch-handler tests, not additional Finder menu clicks. Strict bundle signature and catalogue validation passed. The 330-case matrix and 206 regression results above apply to the unchanged conversion engine from build 7; those full suites were not repeated for menu/launch changes.
 
+## Build 9 spurious Finder error dialogue
+
+The user reported that conversion succeeded but Finder then displayed an application-cannot-open error. The matching diagnostics showed the sandboxed extension's selected-URL launch failing with `NSCocoaErrorDomain` 256, followed by a successful request-only worker. This report supersedes the implication that build 8's successful conversion also proved an entirely quiet launch.
+
+Build 9 removes the speculative selected-URL attempt and retry. The extension sends only its private request in a single launch. Both the Finder extension and Services worker dispatch set `NSWorkspace.OpenConfiguration.promptsUserIfNeeded` to false so launch errors return through their completion handlers. This setting is for launch presentation; it does not grant filesystem access or disable Gatekeeper.
+
+An actual installed-build Finder PNG-to-JPEG action passed. It produced one 96×64 JPEG, preserved the source SHA-256, and left Finder showing the two files without an error dialogue after completion. The matched diagnostics contain one successful request launch, no selected-URL failure, and zero visible worker windows with accessory activation at start and finish. Strict signature and catalogue checks passed. Conversion-engine code is unchanged; the earlier full matrix was not repeated for this launch-only correction. The separate Services interaction limitation remains as recorded above.
+
 ## Real app and Finder checks
 
 - Built and signed the CLI, process helper, Finder extension and containing app; strict signature verification passed.
