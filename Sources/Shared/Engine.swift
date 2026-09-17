@@ -347,6 +347,17 @@ final class ConversionEngine {
     }
     func writePDF(_ pdf: PDFDocument, to url: URL) throws {
         guard pdf.write(to: url), let check = PDFDocument(url: url), check.pageCount == pdf.pageCount else { throw RMError("The generated PDF could not be validated.") }
+        // PDFKit can emit dangling zero-offset objects when copying some imported
+        // pages. Normalise its output when qpdf is available, before publication.
+        if let qpdf = backends["qpdf"] {
+            let repaired = url.deletingLastPathComponent().appendingPathComponent("normalised-" + UUID().uuidString + ".pdf")
+            defer { try? FileManager.default.removeItem(at: repaired) }
+            try ProcessRunner.run(qpdf, [url.path, repaired.path], in: url.deletingLastPathComponent(), timeout: 600, accepted: [0, 3])
+            try ProcessRunner.run(qpdf, ["--check", repaired.path], in: url.deletingLastPathComponent(), timeout: 600)
+            guard let result = PDFDocument(url: repaired), result.pageCount == pdf.pageCount else { throw RMError("The normalised PDF could not be validated.") }
+            try FileManager.default.removeItem(at: url)
+            try FileManager.default.moveItem(at: repaired, to: url)
+        }
     }
 }
 

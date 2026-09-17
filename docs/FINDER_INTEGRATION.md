@@ -30,11 +30,11 @@ Finder selection
 
 **Launching an app is not proof that it received its arguments.** `NSWorkspace.openApplication` launched the app, but the command-line arguments were absent. The installed SDK explicitly says: “If the calling process is sandboxed, the value of this property is ignored.” That comment is on `NSWorkspace.OpenConfiguration.arguments`. Do not repeat this debugging detour.
 
-**Document-open delivery worked.** The extension writes a JSON request into its sandbox container, then calls `NSWorkspace.shared.open([requestURL], withApplicationAt: appURL, configuration: ...)`. The configuration creates a new app instance, avoids Recent Items and does not activate the ordinary worker. The app declares a private request document type and receives URLs through `application(_:open:)`.
+**Document-open delivery worked.** The extension writes a JSON request into its sandbox container, then calls `NSWorkspace.shared.open([requestURL] + selectedURLs, withApplicationAt: appURL, configuration: ...)`. The configuration creates a new app instance, avoids Recent Items and does not activate the ordinary worker. The app declares a private request document type and receives URLs through `application(_:open:)`.
 
 The request folder uses mode 0700 and request files use 0600. The app validates the canonical folder, UUID filename, extension, current-user ownership, regular-file type and a 1 MB size limit before decoding. It then revalidates the operation and inputs. A received path is not permission to access or move a file.
 
-**Account for launch ordering.** `application(_:open:)` can arrive before `applicationDidFinishLaunching`. We save an early request and dispatch it after launch. Normal explicit app launch shows setup; a request launches a worker. User-facing PDF page selection temporarily opens a normal native window.
+**Account for launch ordering.** `application(_:open:)` can arrive before `applicationDidFinishLaunching`. We save an early request and dispatch it after launch. Build 7 declares `LSUIElement` and starts with accessory activation, avoiding a Dock flash. `NSApplication.launchIsDefaultUserInfoKey` distinguishes explicit setup launch from document-open launch, even when the file event arrives late. The worker consumes the security scopes on opened URLs and releases them at termination. Normal explicit app launch shows setup; a request launches a worker. User-facing PDF page selection temporarily opens a normal native window.
 
 **This request mechanism is not a durable queue.** rmconvert removes a request after reading it. It does not provide crash-safe delivery, acknowledgement, replay prevention across a durable journal or recovery of an interrupted move. Those properties need separate treatment for an automatic filer.
 
@@ -111,3 +111,8 @@ Reference application: `/Applications/rmconvert.app`. These files are references
 | [Repository overview](../README.md) | Converter code, scripts and tests; read this handover’s icon correction alongside its earlier validation notes |
 
 The implementation-specific observations above come from local code, SDK headers and actual runs. The iCloud section records follow-on considerations and relevant Apple APIs, not an assertion that the filer has been built.
+
+
+## Build 7 background lesson
+
+Successful and failed file-open workers both logged zero visible windows and accessory activation throughout integration tests. Background failures stay in the job log, with notifications only when already authorised. Explicit setup and PDF page-selection windows remain intentional UI. Pass selected URLs as actual opened documents, validate them against the request paths, and balance their security scopes. This preserves an existing grant; it does not confer blanket folder access or replace macOS privacy authorisation.

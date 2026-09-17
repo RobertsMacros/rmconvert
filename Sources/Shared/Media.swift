@@ -56,10 +56,14 @@ enum MediaConversion {
         }
         let sample = (stream.sample_fmt ?? "").replacingOccurrences(of: "p", with: "")
         if target == "flac" {
-            guard ["u8","s16","s32"].contains(sample) else { throw RMError("FLAC would quantise this floating-point audio. Use WAV to preserve its decoded samples.") }
             if codec == "flac" { return ["-c:a","copy"] }
-            let bits = Int(stream.bits_per_raw_sample ?? "") ?? (sample == "s16" ? 16 : sample == "u8" ? 8 : 0)
-            guard bits > 0 && bits <= 24 else { throw RMError("The source bit depth is not supported by this FLAC profile. Use WAV instead.") }
+            guard ["u8","s16","s32","s64","flt","dbl"].contains(sample) else { throw RMError("This decoded audio sample format is not supported: \(sample).") }
+            // Lossy decoders commonly produce floating-point samples. FLAC stores
+            // integer PCM, so render those samples at 24 bits rather than reject them.
+            let declaredBits = Int(stream.bits_per_raw_sample ?? "") ?? 0
+            let inferredBits = sample == "s16" ? 16 : sample == "u8" ? 8 : 24
+            let sourceBits = declaredBits > 0 ? declaredBits : inferredBits
+            let bits = ["flt","dbl"].contains(sample) ? 24 : min(24, max(8, sourceBits))
             return ["-c:a","flac","-compression_level","8","-sample_fmt",bits <= 16 ? "s16" : "s32","-bits_per_raw_sample",String(bits)]
         }
         let endian = target == "aiff" ? "be" : "le"
@@ -94,7 +98,7 @@ enum MediaConversion {
                         guard abs(expected-b) <= max(0.2,expected*0.01) else { throw RMError("The converted audio duration does not match.") }
                     }
                 }
-                return (directoryOutput ? directory : output, directoryOutput, "\(copied) of \(audio.count) audio tracks copied without re-encoding." + (target == "m4r" ? " Ringtone limited to the first 40 seconds." : "") + " Artwork is not included in audio extraction.")
+                return (directoryOutput ? directory : output, directoryOutput, "\(copied) of \(audio.count) audio tracks copied without re-encoding." + (target == "m4r" ? " Ringtone limited to the first 40 seconds." : "") + (target == "flac" ? " FLAC uses integer PCM up to 24 bits; floating-point or higher-depth samples are quantised to that range." : "") + " Artwork is not included in audio extraction.")
             }
             if ["srt","vtt"].contains(target) {
                 try ProcessRunner.run(executable, base + ["-i",input.path,"-map","0:s:0","-c:s",target == "vtt" ? "webvtt" : "srt",output.path], in: stage)

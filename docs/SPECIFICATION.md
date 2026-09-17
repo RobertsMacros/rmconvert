@@ -4,7 +4,7 @@ Updated 15 September 2026. This replaces the earlier proposal and duplicated bui
 
 ## Interaction
 
-The native Finder Sync extension supplies two top-level contextual menus: **Convert** and **PDF**. Build 5 uses native SF Symbols drawn with the enabled-label colour for the current appearance: opposing arrows for Convert and stacked pages for PDF. The full Roberts Macros logo appears in the setup window. Finder controls the surrounding menu appearance and placement.
+The native Finder Sync extension supplies two top-level contextual menus: **Convert** and **PDF**. Build 5 uses native SF Symbols drawn with the enabled-label colour for the current appearance: opposing arrows for Convert and stacked pages for PDF. The full Roberts Macros logo appears in the setup window. Build 7 starts workers as an accessory app, shows setup only for an explicit default launch, and logs worker failures instead of opening modal alerts. Finder controls the surrounding menu appearance and placement.
 
 **Convert** offers the intersection of explicitly configured formats for the selected files. Aliases are normalised. Files already in the chosen format are skipped; an all-current ordinary target is disabled where configured. One-to-many outputs receive a sibling folder. Missing backends remove affected routes. An incompatible selection receives a disabled explanatory child rather than an empty menu.
 
@@ -50,7 +50,7 @@ Per-job JSON logs contain action, input/output paths, success/skip/failure and r
 | Workbooks | One UTF-8 CSV per sheet, including hidden and empty sheets, using displayed values. PDF follows normal visible-sheet print handling. CSV/TSV imports explicitly preserve strings, including leading zeros and formula-like content. |
 | Tables and structured data | UTF-8, strict headers and rectangular CSV/TSV, quoted multiline support. JSON-to-CSV accepts flat record arrays with sorted union headers; missing/null values become empty cells. YAML/TOML mappings reject unsupported tags and unrepresentable values. Native plist XML/binary conversion preserves values. |
 | XML | JSON-to-XML accepts a flat object with scalar values or scalar arrays under a root wrapper. XML-to-JSON retains the root, represents attributes as `@name`, keeps leaf text as strings and groups repeated elements into ordered arrays. Mixed content, namespaces, DTDs and entities are rejected. This is an explicit mapping, not a universal lossless XML/JSON round trip. |
-| Media | Probe all streams. Copy compatible video/audio streams and encode incompatible ones to the target’s configured codec. Preserve supported streams and chapters; reject content the target cannot preserve. Logs record actual copied/encoded counts. HDR transcoding requiring a tone-map decision is rejected. |
+| Media | Probe all streams. Copy compatible video/audio streams and encode incompatible ones to the target’s configured codec. Preserve supported streams and chapters; reject content the target cannot preserve. Logs record actual copied/encoded counts. FLAC converts floating-point and higher-depth audio to integer PCM up to 24 bits. HDR transcoding requiring a tone-map decision is rejected. |
 | Audio / GIF / subtitles | One file per audio track for extraction. WAV/AIFF preserve supported PCM depth/rate/channels; FLAC supports integer samples up to 24 bits. MP3 uses 320 kbit/s; AAC M4A uses 256 kbit/s where re-encoding is needed. Ringtone is the first 40 seconds. GIF uses a palette, 15 fps, maximum width 640 and no audio. Subtitle conversion preserves text/timing and records styling loss. |
 
 For large structured data, additional input/output and node/depth limits apply; exceeding a limit causes an error rather than truncated published data. Routes are explicit and cannot be discovered by chaining unrelated converters.
@@ -70,3 +70,6 @@ The app was built, signed and installed on the development Mac. Real Finder jobs
 Automated verification covers native conversions, unchanged originals, concurrent output collisions, document/data and media routes, a 200-document Office batch, corrupt inputs, hidden/empty sheets, slide rasterisation, network denial and process timeouts. See [the validation record](VALIDATION.md) for measured results.
 
 Remaining acceptance checks are reboot persistence, notification delivery/click behaviour, all protected/cloud/search/external Finder locations, and representative complex Office/PDF layouts. They do not prevent use of the tested installed app. They must not be described as passed. RAW camera support and the fixed A4/20 mm document template remain deferred features rather than advertised routes.
+
+
+Build 7 passes all advertised source/action pairs in [the conversion matrix](MATRIX_RESULTS.md). PDFKit page-operation outputs are normalised and independently checked by qpdf when installed. macOS file-access grants are preserved through document-open delivery; initial protected-folder authorisation remains controlled by macOS.

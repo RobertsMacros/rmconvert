@@ -2,11 +2,13 @@ import Cocoa
 import FinderSync
 import PDFKit
 import UserNotifications
+import OSLog
 
 @main
 enum Main {
     static func main() {
         let application = NSApplication.shared
+        application.setActivationPolicy(.accessory)
         let delegate = AppDelegate()
         application.delegate = delegate
         application.run()
@@ -15,6 +17,7 @@ enum Main {
 }
 
 final class AppDelegate: NSObject, NSApplicationDelegate, UNUserNotificationCenterDelegate, NSTextFieldDelegate, NSWindowDelegate {
+    private let lifecycle = Logger(subsystem: RMPaths.bundleID, category: "Lifecycle")
     var window: NSWindow?
     var logWindow: NSWindow?
     var status = NSTextField(wrappingLabelWithString: "")
@@ -27,21 +30,36 @@ final class AppDelegate: NSObject, NSApplicationDelegate, UNUserNotificationCent
     var worker = false
     var launchRequest: JobRequest?
     var didLaunch = false
+    var scopedInputs: [URL] = []
 
     func application(_ application: NSApplication, open urls: [URL]) {
         worker = true; NSApp.setActivationPolicy(.accessory)
         do {
-            guard urls.count == 1 else { throw RMError("Invalid job submission.") }
-            let file = urls[0].standardizedFileURL
+            guard let openedRequest = urls.first else { throw RMError("Invalid job submission.") }
+            let requestScope = openedRequest.startAccessingSecurityScopedResource()
+            defer { if requestScope { openedRequest.stopAccessingSecurityScopedResource() } }
+            let file = openedRequest.standardizedFileURL
             let allowed = FileManager.default.homeDirectoryForCurrentUser.appendingPathComponent("Library/Containers/" + RMPaths.extensionID + "/Data/Library/Application Support/rmconvert/Requests").resolvingSymlinksInPath()
             let real = file.resolvingSymlinksInPath()
             guard real.deletingLastPathComponent() == allowed, real.pathExtension == "rmconvert-request", UUID(uuidString: real.deletingPathExtension().lastPathComponent) != nil else { throw RMError("This is not a Finder job created by rmconvert.") }
             let attributes = try FileManager.default.attributesOfItem(atPath: real.path)
             guard (attributes[.size] as? Int ?? 0) <= 1_000_000, (attributes[.ownerAccountID] as? UInt32) == getuid(), attributes[.type] as? FileAttributeType == .typeRegular else { throw RMError("Invalid job file.") }
             let request = try JSONDecoder().decode(JobRequest.self, from: Data(contentsOf: real))
+            let openedInputs = Array(urls.dropFirst())
+            if !openedInputs.isEmpty {
+                guard openedInputs.map({ $0.standardizedFileURL.path }) == request.paths.map({ URL(fileURLWithPath: $0).standardizedFileURL.path }) else {
+                    throw RMError("The opened files do not match the Finder job.")
+                }
+                for url in openedInputs where url.startAccessingSecurityScopedResource() { scopedInputs.append(url) }
+            }
             try? FileManager.default.removeItem(at: real)
             if didLaunch { try handle(request) } else { launchRequest = request }
         } catch { if didLaunch { showError(error.localizedDescription) } else { DispatchQueue.main.async { self.showError(error.localizedDescription) } } }
+    }
+
+    func applicationWillTerminate(_ notification: Notification) {
+        for url in scopedInputs { url.stopAccessingSecurityScopedResource() }
+        scopedInputs.removeAll()
     }
 
     func handle(_ request: JobRequest) throws {
@@ -70,11 +88,24 @@ final class AppDelegate: NSObject, NSApplicationDelegate, UNUserNotificationCent
                     try showPages(request, manifest: manifest)
                 } else { run(request, manifest: manifest) }
             } catch { showError(error.localizedDescription) }
-        } else {
-            NSApp.setActivationPolicy(.regular)
-            installMenu(); showSetup(); refresh()
-            NSApp.activate(ignoringOtherApps: true)
+        } else if (notification.userInfo?[NSApplication.launchIsDefaultUserInfoKey] as? Bool) == true {
+            showSetupApplication()
         }
+        // A document-open launch can deliver its request after this callback.
+        // Stay invisible until that request arrives instead of opening setup.
+    }
+
+    func showSetupApplication() {
+        lifecycle.notice("Explicit setup opened")
+        worker = false
+        NSApp.setActivationPolicy(.regular)
+        installMenu(); showSetup(); refresh()
+        NSApp.activate(ignoringOtherApps: true)
+    }
+
+    func applicationShouldHandleReopen(_ sender: NSApplication, hasVisibleWindows flag: Bool) -> Bool {
+        if !worker && !flag { showSetupApplication() }
+        return false
     }
 
     @objc func closeSetup() { DispatchQueue.main.async { if !self.worker { NSApp.terminate(nil) } } }
@@ -186,32 +217,42 @@ final class AppDelegate: NSObject, NSApplicationDelegate, UNUserNotificationCent
     }
     @objc func submitPages() {
         guard var request = pending else { return }; request.pages = pageField.stringValue
-        do { let manifest = try ConversionManifest.load(at: RMPaths.manifestURL); window?.orderOut(nil); run(request, manifest: manifest) }
+        do { let manifest = try ConversionManifest.load(at: RMPaths.manifestURL); window?.orderOut(nil); NSApp.setActivationPolicy(.accessory); run(request, manifest: manifest) }
         catch { showError(error.localizedDescription) }
     }
     @objc func cancel() { NSApp.terminate(nil) }
     func windowWillClose(_ notification: Notification) { if worker { NSApp.terminate(nil) } }
 
     func run(_ request: JobRequest, manifest: ConversionManifest) {
+        lifecycle.notice("Worker started: visibleWindows=\(NSApp.windows.filter { $0.isVisible }.count), activationPolicy=\(NSApp.activationPolicy().rawValue)")
         DispatchQueue.global(qos: .userInitiated).async {
             let report = ConversionEngine(manifest: manifest).run(request)
             DispatchQueue.main.async {
-                let content = UNMutableNotificationContent(); content.title = "rmconvert"; content.body = report.summary
-                content.userInfo = ["job": report.id]
-                let notification = UNNotificationRequest(identifier: report.id, content: content, trigger: nil)
-                UNUserNotificationCenter.current().getNotificationSettings { settings in
-                    if settings.authorizationStatus == .authorized {
-                        UNUserNotificationCenter.current().add(notification) { _ in DispatchQueue.main.async { NSApp.terminate(nil) } }
-                    } else { DispatchQueue.main.async {
-                        if report.failures > 0 { self.showError(report.results.filter { $0.status == "failed" }.map { URL(fileURLWithPath: $0.input).lastPathComponent + ": " + $0.detail }.joined(separator: "\n")) }
-                        else { NSApp.terminate(nil) }
-                    } }
-                }
+                self.finishInBackground(report)
             }
         }
     }
 
+    func finishInBackground(_ report: JobReport) {
+        lifecycle.notice("Worker finished: failures=\(report.failures), visibleWindows=\(NSApp.windows.filter { $0.isVisible }.count), activationPolicy=\(NSApp.activationPolicy().rawValue)")
+        let content = UNMutableNotificationContent()
+        content.title = "rmconvert"; content.body = report.summary; content.userInfo = ["job": report.id]
+        let notification = UNNotificationRequest(identifier: report.id, content: content, trigger: nil)
+        UNUserNotificationCenter.current().getNotificationSettings { settings in
+            if settings.authorizationStatus == .authorized || settings.authorizationStatus == .provisional {
+                UNUserNotificationCenter.current().add(notification) { _ in DispatchQueue.main.async { NSApp.terminate(nil) } }
+            } else { DispatchQueue.main.async { NSApp.terminate(nil) } }
+        }
+    }
+
     func showError(_ message: String) {
+        if worker {
+            let report = JobReport(action: pending?.action ?? launchRequest?.action ?? "finder.request",
+                results: [FileResult(input: "", outputs: [], status: "failed", detail: message)])
+            JobLog.append(report)
+            finishInBackground(report)
+            return
+        }
         NSApp.setActivationPolicy(.regular); NSApp.activate(ignoringOtherApps: true)
         let alert = NSAlert(); alert.messageText = "rmconvert could not complete this action"; alert.informativeText = message
         alert.addButton(withTitle: "OK"); alert.runModal()

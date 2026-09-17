@@ -7,7 +7,7 @@ final class RMFinderSync: FIFinderSync {
     private var manifest: ConversionManifest?
     private var available = Set<String>()
     private let logger = Logger(subsystem: RMPaths.extensionID, category: "Finder")
-    private var requests: [Int:JobRequest] = [:]
+    private var requests: [Int:(request: JobRequest, urls: [URL])] = [:]
     private var nextTag = 1
     private var menuIcons: [String:NSImage] = [:]
     private var menuIconAppearance: NSAppearance.Name?
@@ -69,7 +69,7 @@ final class RMFinderSync: FIFinderSync {
                 item.target = self; item.isEnabled = entry.enabled
                 // Finder proxies menu items across a process boundary, including their integer tags.
                 item.tag = nextTag; nextTag += 1
-                requests[item.tag] = JobRequest(action: entry.actionId, paths: urls.map(\.path), pages: nil)
+                requests[item.tag] = (JobRequest(action: entry.actionId, paths: urls.map(\.path), pages: nil), urls)
                 submenu.addItem(item)
             }
             parent.submenu = submenu; root.addItem(parent)
@@ -79,7 +79,7 @@ final class RMFinderSync: FIFinderSync {
 
     @objc private func submit(_ sender: NSMenuItem) {
         logger.notice("Action selected with tag \(sender.tag)")
-        guard let request = requests[sender.tag], let data = try? JSONEncoder().encode(request) else { logger.error("Missing captured selection"); return }
+        guard let captured = requests[sender.tag], let data = try? JSONEncoder().encode(captured.request) else { logger.error("Missing captured selection"); return }
         let appURL = Bundle(for: RMFinderSync.self).bundleURL.deletingLastPathComponent().deletingLastPathComponent().deletingLastPathComponent()
         let file = RMPaths.requestDirectory.appendingPathComponent(UUID().uuidString + ".rmconvert-request")
         do {
@@ -91,7 +91,9 @@ final class RMFinderSync: FIFinderSync {
         config.createsNewApplicationInstance = true
         config.addsToRecentItems = false
         config.activates = false
-        NSWorkspace.shared.open([file], withApplicationAt: appURL, configuration: config) { _, error in
+        // Pass the actual selected URLs through LaunchServices as well as the job.
+        // This preserves the system file-open access grant instead of passing paths alone.
+        NSWorkspace.shared.open([file] + captured.urls, withApplicationAt: appURL, configuration: config) { _, error in
             if let error { self.logger.error("Job launch failed: \(error.localizedDescription, privacy: .public)"); try? FileManager.default.removeItem(at: file) }
             else { self.logger.notice("Worker launched") }
         }

@@ -44,6 +44,14 @@ The two real HEIC photos from the reported failure were retried with the install
 
 Build, catalogue validation (47 actions, 64 routes), installation and strict signature verification passed; the installed bundle reports build 6.
 
+## Build 7 compatibility and background operation
+
+The [full matrix](MATRIX_RESULTS.md) covers all 54 advertised source types and 330 source/action pairs: 304 successful conversions, 26 correct same-format skips, no remaining failures. Every case uses synthetic files; validators cover image dimensions, media stream presence and decoding, document/package structure, PDF structure and preserved text, and unchanged source hashes. FLAC conversions now accept ordinary floating-point decoders and render up to 24-bit integer PCM. PDFKit page-operation outputs are normalised and checked with qpdf when available.
+
+All **206 regression checks passed**: 74 core, 61 external, 23 image/batch, 42 media and 6 Office layout checks. This includes the 200-document batch, invalid-input isolation, original preservation, HDR photos and numerical FLAC quantisation checks. The core suite was repeated after the PDF repair. All seven normalised filename aliases (JPEG, TIF, AIF, HEIF, YML, HTM and MARKDOWN) also completed representative conversions with the installed app.
+
+The installed app’s actual document-open handler completed one successful and one deliberately failing job. Both workers logged `visibleWindows=0` and accessory activation policy at start and finish. Selected input URLs were sent alongside the private request; their temporary access scopes are balanced at termination. This test completed without an access prompt in the test folder. It does not prove the absence of prompts in every protected location. No privacy controls or permissions were bypassed. The Mac was locked for direct Finder UI inspection, so the final Finder click remains separate from this launch-path test.
+
 ## Real app and Finder checks
 
 - Built and signed the CLI, process helper, Finder extension and containing app; strict signature verification passed.

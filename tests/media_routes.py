@@ -6,8 +6,8 @@ import subprocess
 import tempfile
 from pathlib import Path
 
-root=Path(tempfile.mkdtemp(prefix='rmconvert-media-',dir='/private/tmp'))
-cli=Path(f'/private/tmp/rmconvert-build-{os.getuid()}/rmconvert.app/Contents/MacOS/rmconvert')
+root=Path(tempfile.mkdtemp(prefix='rmconvert-media-',dir=os.environ.get('RMCONVERT_TEST_ROOT','/private/tmp')))
+cli=Path(os.environ.get('RMCONVERT_TEST_APP',f'/private/tmp/rmconvert-build-{os.getuid()}/rmconvert.app'))/'Contents/MacOS/rmconvert'
 ffmpeg='/opt/homebrew/bin/ffmpeg'
 ffprobe='/opt/homebrew/bin/ffprobe'
 env=dict(os.environ,RMCONVERT_LOG_DIRECTORY=str(root/'logs'))
@@ -66,4 +66,17 @@ srt=root/'Captions.srt';srt.write_text('1\n00:00:00,000 --> 00:00:01,000\nHello,
 vtt=job(srt,'vtt')
 check('Hello, world.' in vtt.read_text(),'subtitle text retained')
 check(hashlib.sha256(video.read_bytes()).hexdigest()==original,'video original unchanged')
+# Floating-point decoders are normal for lossy sources; FLAC renders 24-bit PCM.
+import array
+floating=root/'Floating.wav'
+create(['-f','lavfi','-i','sine=frequency=440:duration=1','-c:a','pcm_f32le',str(floating)])
+for source in [floating, job(floating,'mp3')]:
+    flac=job(source,'flac')
+    audio=next(s for s in probe(flac)['streams'] if s['codec_type']=='audio')
+    check(int(audio.get('bits_per_raw_sample',0))==24,'floating decoded audio uses 24-bit FLAC')
+    def pcm(p):
+        raw=subprocess.check_output([ffmpeg,'-v','error','-i',str(p),'-f','f32le','-c:a','pcm_f32le','-'])
+        samples=array.array('f');samples.frombytes(raw);return samples
+    before,after=pcm(source),pcm(flac)
+    check(len(before)==len(after) and max(abs(x-y) for x,y in zip(before,after))<=2**-22,'FLAC quantisation is bounded and sample count preserved')
 print(f'PASS: {checks} media checks. Fixtures: {root}',flush=True)

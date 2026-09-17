@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 import json, os, subprocess, tempfile, zipfile, re, math
 from pathlib import Path
-root=Path(tempfile.mkdtemp(prefix='rmconvert-office-layouts-',dir='/private/tmp'))
-cli=Path(f'/private/tmp/rmconvert-build-{os.getuid()}/rmconvert.app/Contents/MacOS/rmconvert')
+root=Path(tempfile.mkdtemp(prefix='rmconvert-office-layouts-',dir=os.environ.get('RMCONVERT_TEST_ROOT','/private/tmp')))
+cli=Path(os.environ.get('RMCONVERT_TEST_APP',f'/private/tmp/rmconvert-build-{os.getuid()}/rmconvert.app'))/'Contents/MacOS/rmconvert'
 env=dict(os.environ,RMCONVERT_LOG_DIRECTORY=str(root/'logs'))
 checks=0
 

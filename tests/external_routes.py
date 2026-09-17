@@ -9,8 +9,8 @@ import tempfile
 import zipfile
 from pathlib import Path
 
-root = Path(tempfile.mkdtemp(prefix='rmconvert-routes-', dir='/private/tmp'))
-app = Path(f'/private/tmp/rmconvert-build-{os.getuid()}/rmconvert.app')
+root = Path(tempfile.mkdtemp(prefix='rmconvert-routes-', dir=os.environ.get('RMCONVERT_TEST_ROOT','/private/tmp')))
+app = Path(os.environ.get('RMCONVERT_TEST_APP',f'/private/tmp/rmconvert-build-{os.getuid()}/rmconvert.app'))
 cli = app / 'Contents/MacOS/rmconvert'
 env = dict(os.environ, RMCONVERT_LOG_DIRECTORY=str(root/'logs'))
 checks = 0

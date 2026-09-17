@@ -3,6 +3,8 @@ set -euo pipefail
 cd "$(dirname "$0")/.."
 source_app="/private/tmp/rmconvert-build-${UID}/rmconvert.app"
 if [[ ! -d "$source_app" ]]; then ./script/build_and_run.sh --build-only; fi
+open_setup=1
+if [[ "${1:-}" == --no-open ]]; then open_setup=0; shift; fi
 destination="${1:-/Applications}"
 mkdir -p "$destination" "$HOME/.local/bin"
 target="$destination/rmconvert.app"
@@ -21,6 +23,6 @@ ln -sfn "$target/Contents/MacOS/rmconvert" "$HOME/.local/bin/rmconvert"
 /System/Library/Frameworks/CoreServices.framework/Frameworks/LaunchServices.framework/Support/lsregister -f "$target"
 /usr/bin/pluginkit -a "$target/Contents/PlugIns/RMFinder.appex"
 /usr/bin/pluginkit -e use -i com.robertsmacros.rmconvert.Finder
-/usr/bin/open -n "$target"
+if [[ "$open_setup" == 1 ]]; then /usr/bin/open -n "$target"; fi
 echo "Installed: $target"
 echo 'Enable rmconvert in Finder extensions using Open Finder settings in the app.'

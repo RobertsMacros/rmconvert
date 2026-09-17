@@ -12,3 +12,5 @@ __pycache__/
 *.p12
 *.pfx
 *.key
+
+tests/runs/
