@@ -116,3 +116,13 @@ The implementation-specific observations above come from local code, SDK headers
 ## Build 7 background lesson
 
 Successful and failed file-open workers both logged zero visible windows and accessory activation throughout integration tests. Background failures stay in the job log, with notifications only when already authorised. Explicit setup and PDF page-selection windows remain intentional UI. Pass selected URLs as actual opened documents, validate them against the request paths, and balance their security scopes. This preserves an existing grant; it does not confer blanket folder access or replace macOS privacy authorisation.
+
+## Build 8 Finder launch correction and Services fallback
+
+The direct Finder test exposed a gap in the build 7 launch-path tests: opening the selected input URLs from the sandboxed extension failed with `NSCocoaErrorDomain` 256, although the same operation worked from an unsandboxed test process. Build 8 retries only the private request when the initial open fails and the request has not been consumed. The worker then uses its existing macOS permissions. The real local-folder JPEG-to-PNG action succeeded this way, with zero visible worker windows and accessory activation throughout. Do not describe Finder selection URLs as guaranteed security-scoped grants.
+
+Finder's iCloud view omitted the extension menu on this Mac, including after explicit cloud-root registration. Build 8 therefore adds two native Services, **Convert…** and **PDF…**. `NSServices` declares their file pasteboard types and Finder context. A Services provider captures the files, returns promptly to Finder, shows a native choice menu and dispatches the chosen action to a separate worker. This keeps conversion out of the Services callback and permits background jobs to finish independently. The app-owned request folder uses the same ownership, size, UUID and file-type validation as extension requests. No broader filesystem entitlement is added.
+
+The installer refreshes the Services registry after registering the app. Modern Services do not support custom submenus, so two choice menus avoid placing every output format in Finder's Services list. [Apple: Services properties](https://developer.apple.com/library/archive/documentation/Cocoa/Conceptual/SysServices/Articles/properties.html)
+
+The Services entries and provider callback were verified, but the complete Services choice-to-output interaction remains awaiting manual confirmation: the UI tool could not reliably activate or inspect that accessory-app menu. Keep this limitation alongside the working local Finder action; do not inherit the fallback as fully accepted yet.

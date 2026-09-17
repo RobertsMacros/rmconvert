@@ -31,6 +31,8 @@ final class AppDelegate: NSObject, NSApplicationDelegate, UNUserNotificationCent
     var launchRequest: JobRequest?
     var didLaunch = false
     var scopedInputs: [URL] = []
+    var serviceSelecting = false
+    private var conversionServices: ConversionServices?
 
     func application(_ application: NSApplication, open urls: [URL]) {
         worker = true; NSApp.setActivationPolicy(.accessory)
@@ -39,9 +41,10 @@ final class AppDelegate: NSObject, NSApplicationDelegate, UNUserNotificationCent
             let requestScope = openedRequest.startAccessingSecurityScopedResource()
             defer { if requestScope { openedRequest.stopAccessingSecurityScopedResource() } }
             let file = openedRequest.standardizedFileURL
-            let allowed = FileManager.default.homeDirectoryForCurrentUser.appendingPathComponent("Library/Containers/" + RMPaths.extensionID + "/Data/Library/Application Support/rmconvert/Requests").resolvingSymlinksInPath()
+            let extensionRequests = FileManager.default.homeDirectoryForCurrentUser.appendingPathComponent("Library/Containers/" + RMPaths.extensionID + "/Data/Library/Application Support/rmconvert/Requests").resolvingSymlinksInPath()
             let real = file.resolvingSymlinksInPath()
-            guard real.deletingLastPathComponent() == allowed, real.pathExtension == "rmconvert-request", UUID(uuidString: real.deletingPathExtension().lastPathComponent) != nil else { throw RMError("This is not a Finder job created by rmconvert.") }
+            let allowed = [extensionRequests, RMPaths.requestDirectory.resolvingSymlinksInPath()]
+            guard allowed.contains(real.deletingLastPathComponent()), real.pathExtension == "rmconvert-request", UUID(uuidString: real.deletingPathExtension().lastPathComponent) != nil else { throw RMError("This is not a Finder job created by rmconvert.") }
             let attributes = try FileManager.default.attributesOfItem(atPath: real.path)
             guard (attributes[.size] as? Int ?? 0) <= 1_000_000, (attributes[.ownerAccountID] as? UInt32) == getuid(), attributes[.type] as? FileAttributeType == .typeRegular else { throw RMError("Invalid job file.") }
             let request = try JSONDecoder().decode(JobRequest.self, from: Data(contentsOf: real))
@@ -72,6 +75,8 @@ final class AppDelegate: NSObject, NSApplicationDelegate, UNUserNotificationCent
         DistributedNotificationCenter.default().addObserver(self, selector: #selector(closeSetup), name: RMPaths.closeSetupNotification, object: nil)
         UNUserNotificationCenter.current().delegate = self
         didLaunch = true
+        conversionServices = ConversionServices(delegate: self)
+        NSApp.servicesProvider = conversionServices
         if let request = launchRequest {
             worker = true; NSApp.setActivationPolicy(.accessory)
             do { try handle(request) } catch { showError(error.localizedDescription) }
@@ -88,7 +93,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, UNUserNotificationCent
                     try showPages(request, manifest: manifest)
                 } else { run(request, manifest: manifest) }
             } catch { showError(error.localizedDescription) }
-        } else if (notification.userInfo?[NSApplication.launchIsDefaultUserInfoKey] as? Bool) == true {
+        } else if !serviceSelecting && (notification.userInfo?[NSApplication.launchIsDefaultUserInfoKey] as? Bool) == true {
             showSetupApplication()
         }
         // A document-open launch can deliver its request after this callback.
@@ -108,7 +113,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, UNUserNotificationCent
         return false
     }
 
-    @objc func closeSetup() { DispatchQueue.main.async { if !self.worker { NSApp.terminate(nil) } } }
+    @objc func closeSetup() { DispatchQueue.main.async { if !self.worker && !self.serviceSelecting { NSApp.terminate(nil) } } }
 
     func installMenu() {
         let menu = NSMenu(), appItem = NSMenuItem(), appMenu = NSMenu(title: "rmconvert")
@@ -240,9 +245,17 @@ final class AppDelegate: NSObject, NSApplicationDelegate, UNUserNotificationCent
         let notification = UNNotificationRequest(identifier: report.id, content: content, trigger: nil)
         UNUserNotificationCenter.current().getNotificationSettings { settings in
             if settings.authorizationStatus == .authorized || settings.authorizationStatus == .provisional {
-                UNUserNotificationCenter.current().add(notification) { _ in DispatchQueue.main.async { NSApp.terminate(nil) } }
-            } else { DispatchQueue.main.async { NSApp.terminate(nil) } }
+                UNUserNotificationCenter.current().add(notification) { _ in DispatchQueue.main.async { self.terminateWorkerWhenReady() } }
+            } else { DispatchQueue.main.async { self.terminateWorkerWhenReady() } }
         }
+    }
+
+    private func terminateWorkerWhenReady() {
+        // An existing worker may receive a Services request while it finishes.
+        // Let that request launch its isolated worker before this process exits.
+        if serviceSelecting {
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) { self.terminateWorkerWhenReady() }
+        } else { NSApp.terminate(nil) }
     }
 
     func showError(_ message: String) {

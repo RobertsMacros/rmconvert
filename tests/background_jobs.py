@@ -2,9 +2,10 @@
 """Exercise the installed app's document-open worker with generated files."""
 import argparse,json,os,shutil,subprocess,time,uuid
 from pathlib import Path
-p=argparse.ArgumentParser();p.add_argument('--app',type=Path,default=Path('/Applications/rmconvert.app'));p.add_argument('--fixture',type=Path,required=True);p.add_argument('--root',type=Path,required=True);a=p.parse_args()
+p=argparse.ArgumentParser();p.add_argument('--request-origin', choices=['extension','app'], default='extension');p.add_argument('--request-only',action='store_true');p.add_argument('--app',type=Path,default=Path('/Applications/rmconvert.app'));p.add_argument('--fixture',type=Path,required=True);p.add_argument('--root',type=Path,required=True);a=p.parse_args()
 a.root.mkdir(parents=True,exist_ok=True)
 requests=Path.home()/'Library/Containers/com.robertsmacros.rmconvert.Finder/Data/Library/Application Support/rmconvert/Requests'
+if a.request_origin == 'app': requests=Path.home()/'Library/Application Support/rmconvert/Requests'
 requests.mkdir(parents=True,exist_ok=True,mode=0o700)
 logs=Path.home()/'Library/Logs/rmconvert'
 for invalid in [False,True]:
@@ -14,7 +15,7 @@ for invalid in [False,True]:
  before=source.read_bytes()
  request=requests/(str(uuid.uuid4()).upper()+'.rmconvert-request')
  request.write_text(json.dumps({'action':'convert.jpg','paths':[str(source)],'pages':None}));request.chmod(0o600)
- start=time.time();subprocess.run(['/usr/bin/open','-g','-n','-a',str(a.app),str(request),str(source)],check=True)
+ start=time.time();subprocess.run(['/usr/bin/open','-g','-n','-a',str(a.app),str(request)]+([] if a.request_only else [str(source)]),check=True)
  report=None
  while time.time()-start<60:
   for f in logs.glob('*.json'):

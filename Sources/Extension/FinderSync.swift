@@ -92,10 +92,22 @@ final class RMFinderSync: FIFinderSync {
         config.addsToRecentItems = false
         config.activates = false
         // Pass the actual selected URLs through LaunchServices as well as the job.
-        // This preserves the system file-open access grant instead of passing paths alone.
+        // This preserves a system file-open access grant when one is available.
         NSWorkspace.shared.open([file] + captured.urls, withApplicationAt: appURL, configuration: config) { _, error in
-            if let error { self.logger.error("Job launch failed: \(error.localizedDescription, privacy: .public)"); try? FileManager.default.removeItem(at: file) }
-            else { self.logger.notice("Worker launched") }
+            guard let error else { self.logger.notice("Worker launched with selected URLs"); return }
+            let failure = error as NSError
+            self.logger.error("Selected-URL launch failed: \(failure.domain, privacy: .public) \(failure.code)")
+            // Finder selection URLs do not always carry a transferable sandbox grant.
+            // Retry the private request only while it is unconsumed. The containing
+            // app remains subject to normal macOS file permissions; this grants none.
+            guard FileManager.default.fileExists(atPath: file.path) else { return }
+            NSWorkspace.shared.open([file], withApplicationAt: appURL, configuration: config) { _, retryError in
+                if let retryError {
+                    let failure = retryError as NSError
+                    self.logger.error("Request launch failed: \(failure.domain, privacy: .public) \(failure.code)")
+                    try? FileManager.default.removeItem(at: file)
+                } else { self.logger.notice("Worker launched with private request") }
+            }
         }
     }
 }

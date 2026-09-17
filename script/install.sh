@@ -23,6 +23,7 @@ ln -sfn "$target/Contents/MacOS/rmconvert" "$HOME/.local/bin/rmconvert"
 /System/Library/Frameworks/CoreServices.framework/Frameworks/LaunchServices.framework/Support/lsregister -f "$target"
 /usr/bin/pluginkit -a "$target/Contents/PlugIns/RMFinder.appex"
 /usr/bin/pluginkit -e use -i com.robertsmacros.rmconvert.Finder
+/System/Library/CoreServices/pbs -update
 if [[ "$open_setup" == 1 ]]; then /usr/bin/open -n "$target"; fi
 echo "Installed: $target"
 echo 'Enable rmconvert in Finder extensions using Open Finder settings in the app.'
