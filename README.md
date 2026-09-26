@@ -1,5 +1,7 @@
 # rmconvert
 
+**Roberts Macros: no macro too micro.**
+
 A local macOS file converter by Roberts Macros. The app adds **Convert** and **PDF** to Finder’s right-click menu, with Roberts Macros branding.
 
 **Status:** an early local-use build. Build 10 replaces the separate Extract and Remove page pickers with one **Organise pages…** window. Build 9 introduced one background Finder launch, removing the erroneous launch-error pop-up. Native Services are also available for cloud views. Its conversion engine has passed the [complete conversion matrix](docs/MATRIX_RESULTS.md): 54 source types and 331 source/action combinations, rerun on build 10. HDR gain-map photos convert to standard dynamic range (SDR). Finder uses native system symbols with macOS’s enabled-label colour: opposing arrows for Convert and stacked pages for PDF. The full Roberts Macros logo remains in setup. See [validation and limitations](docs/VALIDATION.md).
