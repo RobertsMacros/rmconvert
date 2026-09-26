@@ -16,17 +16,13 @@ enum Main {
     }
 }
 
-final class AppDelegate: NSObject, NSApplicationDelegate, UNUserNotificationCenterDelegate, NSTextFieldDelegate, NSWindowDelegate {
+final class AppDelegate: NSObject, NSApplicationDelegate, UNUserNotificationCenterDelegate, NSWindowDelegate {
     private let lifecycle = Logger(subsystem: RMPaths.bundleID, category: "Lifecycle")
     var window: NSWindow?
     var logWindow: NSWindow?
     var status = NSTextField(wrappingLabelWithString: "")
-    var pageField = NSTextField(string: "")
-    var pageStatus = NSTextField(wrappingLabelWithString: "")
-    var pageButton = NSButton()
-    var preview = PDFView()
+    var organiser: PageOrganiserController?
     var pending: JobRequest?
-    var pageCount = 0
     var worker = false
     var launchRequest: JobRequest?
     var didLaunch = false
@@ -67,7 +63,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, UNUserNotificationCent
 
     func handle(_ request: JobRequest) throws {
         let manifest = try ConversionManifest.load(at: RMPaths.manifestURL)
-        if manifest.actions.first(where: { $0.id == request.action })?.needsPages == true && request.pages == nil { try showPages(request, manifest: manifest) }
+        if manifest.actions.first(where: { $0.id == request.action })?.needsPages == true && request.pages == nil { try showOrganiser(request, manifest: manifest) }
         else { run(request, manifest: manifest) }
     }
 
@@ -90,7 +86,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, UNUserNotificationCent
                 let request = try JSONDecoder().decode(JobRequest.self, from: data)
                 let manifest = try ConversionManifest.load(at: RMPaths.manifestURL)
                 if manifest.actions.first(where: { $0.id == request.action })?.needsPages == true && request.pages == nil {
-                    try showPages(request, manifest: manifest)
+                    try showOrganiser(request, manifest: manifest)
                 } else { run(request, manifest: manifest) }
             } catch { showError(error.localizedDescription) }
         } else if !serviceSelecting && (notification.userInfo?[NSApplication.launchIsDefaultUserInfoKey] as? Bool) == true {
@@ -115,15 +111,20 @@ final class AppDelegate: NSObject, NSApplicationDelegate, UNUserNotificationCent
 
     @objc func closeSetup() { DispatchQueue.main.async { if !self.worker && !self.serviceSelecting { NSApp.terminate(nil) } } }
 
-    func installMenu() {
+    func installMenu(organiser: Bool = false) {
         let menu = NSMenu(), appItem = NSMenuItem(), appMenu = NSMenu(title: "rmconvert")
         appMenu.addItem(withTitle: "About rmconvert", action: #selector(NSApplication.orderFrontStandardAboutPanel(_:)), keyEquivalent: "")
         appMenu.addItem(.separator())
         appMenu.addItem(withTitle: "Quit rmconvert", action: #selector(NSApplication.terminate(_:)), keyEquivalent: "q")
         appItem.submenu = appMenu; menu.addItem(appItem)
         let edit = NSMenuItem(title: "Edit", action: nil, keyEquivalent: ""), sub = NSMenu(title: "Edit")
+        sub.addItem(withTitle: "Undo", action: Selector(("undo:")), keyEquivalent: "z")
+        sub.addItem(withTitle: "Redo", action: Selector(("redo:")), keyEquivalent: "Z")
+        sub.addItem(.separator())
         for (title, selector, key) in [("Cut", #selector(NSText.cut(_:)), "x"), ("Copy", #selector(NSText.copy(_:)), "c"), ("Paste", #selector(NSText.paste(_:)), "v"), ("Select All", #selector(NSText.selectAll(_:)), "a")] { sub.addItem(withTitle: title, action: selector, keyEquivalent: key) }
-        edit.submenu = sub; menu.addItem(edit); NSApp.mainMenu = menu
+        edit.submenu = sub; menu.addItem(edit)
+        if organiser { PageOrganiserController.addMenus(to: menu) }
+        NSApp.mainMenu = menu
     }
 
     func makeWindow(_ title: String, size: NSSize) -> NSWindow {
@@ -184,48 +185,30 @@ final class AppDelegate: NSObject, NSApplicationDelegate, UNUserNotificationCent
         }
     }
 
-    func showPages(_ request: JobRequest, manifest: ConversionManifest) throws {
-        guard request.paths.count == 1 else { throw RMError("Choose one PDF for page selection.") }
+    func showOrganiser(_ request: JobRequest, manifest: ConversionManifest) throws {
+        guard request.paths.count == 1 else { throw RMError("Choose one PDF to organise its pages.") }
         let input = try AtomicOutput.checkInput(URL(fileURLWithPath: request.paths[0]))
-        let document = try ConversionEngine(manifest: manifest).loadPDF(input)
-        pageCount = document.pageCount; pending = request
-        NSApp.setActivationPolicy(.regular); installMenu()
-        let removing = request.action == "pdf.remove"
-        let win = makeWindow(removing ? "Remove pages" : "Extract pages", size: NSSize(width: 730, height: 740)); window = win
-        let stack = NSStackView(); stack.orientation = .vertical; stack.alignment = .leading; stack.spacing = 14
-        stack.addArrangedSubview(label(input.lastPathComponent, size: 18, weight: .semibold))
-        stack.addArrangedSubview(label("\(pageCount) pages · original file will be kept"))
-        preview.document = document; preview.autoScales = true; preview.displayMode = .singlePageContinuous
-        preview.translatesAutoresizingMaskIntoConstraints = false; preview.heightAnchor.constraint(equalToConstant: 365).isActive = true
-        stack.addArrangedSubview(preview); preview.widthAnchor.constraint(equalTo: stack.widthAnchor).isActive = true
-        stack.addArrangedSubview(label(removing ? "Pages to remove" : "Pages to extract", weight: .semibold))
-        pageField.placeholderString = "For example: 1-3, 5, 8"; pageField.delegate = self; pageField.font = .systemFont(ofSize: 15)
-        pageField.setAccessibilityLabel(removing ? "Pages to remove" : "Pages to extract")
-        stack.addArrangedSubview(pageField); pageField.widthAnchor.constraint(equalTo: stack.widthAnchor).isActive = true
-        pageStatus.textColor = .secondaryLabelColor; stack.addArrangedSubview(pageStatus)
-        pageButton = button(removing ? "Save remaining pages" : "Extract pages", action: #selector(submitPages)); pageButton.keyEquivalent = "\r"; pageButton.isEnabled = false
-        stack.addArrangedSubview(NSStackView(views: [button("Cancel", action: #selector(cancel)), pageButton]))
-        mount(stack, in: win.contentView!, inset: 22)
-        win.makeKeyAndOrderFront(nil); win.makeFirstResponder(pageField); NSApp.activate(ignoringOtherApps: true)
-        updatePages()
+        let engine = ConversionEngine(manifest: manifest)
+        let document = try engine.loadPDF(input)
+        pending = request
+        NSApp.setActivationPolicy(.regular); installMenu(organiser: true)
+        let controller = PageOrganiserController(input: input, document: document, engine: engine,
+            logo: NSImage(contentsOf: RMPaths.resourceDirectory.appendingPathComponent("RobertsMacros.png")))
+        controller.onClose = { [weak self] in if self?.worker == true { NSApp.terminate(nil) } }
+        controller.onSave = { summary, outcome in
+            // Each save is recorded in the recent-job log; errors stay in the window.
+            let result: FileResult
+            switch outcome {
+            case .success(let url): result = FileResult(input: input.path, outputs: [url.path], status: "converted", detail: summary + ". New page document; document outlines and signatures are not preserved.")
+            case .failure(let error): result = FileResult(input: input.path, outputs: [], status: "failed", detail: error.localizedDescription)
+            }
+            // Written before returning, so closing the window straight afterwards cannot lose it.
+            JobLog.append(JobReport(action: request.action, results: [result]))
+        }
+        organiser = controller; window = controller.window
+        controller.showWindow(nil); NSApp.activate(ignoringOtherApps: true)
     }
 
-    func controlTextDidChange(_ obj: Notification) { updatePages() }
-    func updatePages() {
-        do {
-            let selected = try PageRanges.parse(pageField.stringValue, pageCount: pageCount)
-            let removing = pending?.action == "pdf.remove", count = removing ? pageCount - selected.count : selected.count
-            guard count > 0 else { throw RMError("Keep at least one page in the PDF.") }
-            pageStatus.stringValue = "The new PDF will contain \(count) \(count == 1 ? "page" : "pages")."; pageButton.isEnabled = true
-            if let first = selected.first, let page = preview.document?.page(at: first) { preview.go(to: page) }
-        } catch { pageStatus.stringValue = error.localizedDescription; pageButton.isEnabled = false }
-    }
-    @objc func submitPages() {
-        guard var request = pending else { return }; request.pages = pageField.stringValue
-        do { let manifest = try ConversionManifest.load(at: RMPaths.manifestURL); window?.orderOut(nil); NSApp.setActivationPolicy(.accessory); run(request, manifest: manifest) }
-        catch { showError(error.localizedDescription) }
-    }
-    @objc func cancel() { NSApp.terminate(nil) }
     func windowWillClose(_ notification: Notification) { if worker { NSApp.terminate(nil) } }
 
     func run(_ request: JobRequest, manifest: ConversionManifest) {
