@@ -2,8 +2,9 @@ import json
 from pathlib import Path
 
 actions, routes = [], []
-def action(id, label, menu='Convert', group=10, order=0, output=None, minimum=1, maximum=None, same=False, current=False, pages=False):
+def action(id, label, menu='Convert', group=10, order=0, output=None, minimum=1, maximum=None, same=False, current=False, pages=False, terminal=False):
     actions.append(dict(id=id,label=label,menu=menu,group=group,order=order,outputFormat=output,minimumCount=minimum,maximumCount=maximum,sameDirectory=same,showCurrent=current,needsPages=pages))
+    if terminal: actions[-1]['terminalOnly']=True
 def route(id, sources, handler, backend='native', **extra):
     routes.append(dict(action=id,from_=sources,handler=handler,backend=backend,priority=10,label=None,group=None,options={},**extra))
 images=['jpg','png','tiff','heic','bmp','webp','gif','avif','psd']
@@ -24,8 +25,10 @@ action('pdf.combine-images','Combine into one PDF',menu='PDF',output='pdf',minim
 route('pdf.combine-images',images,'image.pdf')
 action('pdf.combine','Combine PDFs',menu='PDF',output='pdf',minimum=2,same=True)
 route('pdf.combine',['pdf'],'pdf')
-for index,(id,name,pages) in enumerate([('split','Split into separate PDFs',False),('extract','Extract pages…',True),('remove','Remove pages…',True),('rotate-right','Rotate clockwise',False),('rotate-left','Rotate anticlockwise',False)]):
-    action('pdf.'+id,name,menu='PDF',group=20 if index<3 else 30,order=index,output='pdf',maximum=1 if pages else None,pages=pages)
+# Organise pages opens one window for reordering, rotating, removing and extracting.
+# Extract and remove stay available to Terminal and Stream Deck with --pages.
+for id,name,group,order,pages,terminal in [('split','Split into separate PDFs',20,0,False,False),('organise','Organise pages…',20,1,True,False),('extract','Extract pages',20,2,True,True),('remove','Remove pages',20,3,True,True),('rotate-right','Rotate clockwise',30,3,False,False),('rotate-left','Rotate anticlockwise',30,4,False,False)]:
+    action('pdf.'+id,name,menu='PDF',group=group,order=order,output='pdf',maximum=1 if pages else None,pages=pages,terminal=terminal)
     route('pdf.'+id,['pdf'],'pdf')
 for ext in ['png','jpg']:
     route('convert.'+ext,['pdf'],'pdf.raster','pdftoppm')

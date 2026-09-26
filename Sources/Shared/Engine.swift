@@ -300,11 +300,9 @@ final class ConversionEngine {
                 let selected = try PageRanges.parse(pages, pageCount: document.pageCount)
                 let indexes = action.id == "pdf.remove" ? Array(0..<document.pageCount).filter { !Set(selected).contains($0) } : selected
                 guard !indexes.isEmpty else { throw RMError("Keep at least one page in the PDF.") }
-                let output = PDFDocument()
-                for index in indexes { output.insert(document.page(at: index)!.copy() as! PDFPage, at: output.pageCount) }
-                try writePDF(output, to: temporary)
-                let suffix = action.id == "pdf.remove" ? "-remaining" : "-extracted"
-                base = input.deletingLastPathComponent().appendingPathComponent(input.deletingPathExtension().lastPathComponent + suffix + ".pdf")
+                try writePDF(PageOrganiser.document(from: document, pages: indexes.map { OrganisedPage(source: $0) }), to: temporary)
+                if action.id == "pdf.organise" { base = PageOrganiser.outputBase(for: input, label: "organised") }
+                else { base = input.deletingLastPathComponent().appendingPathComponent(input.deletingPathExtension().lastPathComponent + (action.id == "pdf.remove" ? "-remaining" : "-extracted") + ".pdf") }
             } else if action.id == "pdf.rotate-right" || action.id == "pdf.rotate-left" {
                 let output = PDFDocument()
                 for index in 0..<document.pageCount {

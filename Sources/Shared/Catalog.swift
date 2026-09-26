@@ -12,6 +12,8 @@ struct ConversionAction: Codable {
     var sameDirectory: Bool = false
     var showCurrent: Bool = false
     var needsPages: Bool = false
+    /// Kept for Terminal and Stream Deck use; not shown in Finder or Services menus.
+    var terminalOnly: Bool?
 }
 
 struct ConversionRoute: Codable {
@@ -82,7 +84,7 @@ struct ConversionManifest: Codable {
         var result: [MenuModel] = []
         for menuName in ["Convert", "PDF"] {
             var items: [MenuItemModel] = []
-            for action in actions where action.menu == menuName {
+            for action in actions where action.menu == menuName && action.terminalOnly != true {
                 guard urls.count >= action.minimumCount, action.maximumCount.map({ urls.count <= $0 }) ?? true else { continue }
                 if action.sameDirectory && !sameDirectory { continue }
                 let actual = sources.map { route(action.id, source: $0, available: available) }

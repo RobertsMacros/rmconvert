@@ -158,8 +158,8 @@
       "needsPages": false
     },
     {
-      "id": "pdf.extract",
-      "label": "Extract pages\u2026",
+      "id": "pdf.organise",
+      "label": "Organise pages\u2026",
       "menu": "PDF",
       "group": 20,
       "order": 1,
@@ -171,8 +171,8 @@
       "needsPages": true
     },
     {
-      "id": "pdf.remove",
-      "label": "Remove pages\u2026",
+      "id": "pdf.extract",
+      "label": "Extract pages",
       "menu": "PDF",
       "group": 20,
       "order": 2,
@@ -181,7 +181,22 @@
       "maximumCount": 1,
       "sameDirectory": false,
       "showCurrent": false,
-      "needsPages": true
+      "needsPages": true,
+      "terminalOnly": true
+    },
+    {
+      "id": "pdf.remove",
+      "label": "Remove pages",
+      "menu": "PDF",
+      "group": 20,
+      "order": 3,
+      "outputFormat": "pdf",
+      "minimumCount": 1,
+      "maximumCount": 1,
+      "sameDirectory": false,
+      "showCurrent": false,
+      "needsPages": true,
+      "terminalOnly": true
     },
     {
       "id": "pdf.rotate-right",
@@ -868,6 +883,18 @@
     },
     {
       "action": "pdf.split",
+      "handler": "pdf",
+      "backend": "native",
+      "priority": 10,
+      "label": null,
+      "group": null,
+      "options": {},
+      "from": [
+        "pdf"
+      ]
+    },
+    {
+      "action": "pdf.organise",
       "handler": "pdf",
       "backend": "native",
       "priority": 10,
