@@ -2,7 +2,7 @@
 
 A local macOS file converter by Roberts Macros. The app adds **Convert** and **PDF** to Finder’s right-click menu, with Roberts Macros branding.
 
-**Status:** an early local-use build. Build 9 uses one background Finder launch, removing the erroneous launch-error pop-up. Native Services are also available for cloud views. Its conversion engine has passed the [complete conversion matrix](docs/MATRIX_RESULTS.md): 54 source types and 330 source/action combinations. HDR gain-map photos convert to standard dynamic range (SDR). Finder uses native system symbols with macOS’s enabled-label colour: opposing arrows for Convert and stacked pages for PDF. The full Roberts Macros logo remains in setup. See [validation and limitations](docs/VALIDATION.md).
+**Status:** an early local-use build. Build 10 replaces the separate Extract and Remove page pickers with one **Organise pages…** window. Build 9 introduced one background Finder launch, removing the erroneous launch-error pop-up. Native Services are also available for cloud views. Its conversion engine has passed the [complete conversion matrix](docs/MATRIX_RESULTS.md): 54 source types and 331 source/action combinations, rerun on build 10. HDR gain-map photos convert to standard dynamic range (SDR). Finder uses native system symbols with macOS’s enabled-label colour: opposing arrows for Convert and stacked pages for PDF. The full Roberts Macros logo remains in setup. See [validation and limitations](docs/VALIDATION.md).
 
 ## Using it
 
@@ -15,17 +15,35 @@ Use **PDF** for:
 - **Combine PDFs**: select two or more PDFs in the same folder. Pages follow numeric-aware filename order.
 - **Combine into one PDF**: select two or more supported images in one folder.
 - **Split into separate PDFs**: create a folder containing one PDF per page.
-- **Extract pages… / Remove pages…**: select one PDF, inspect the preview and enter a range such as `1-3, 5, 8`. Extraction follows the entered order. Repeated pages are included once.
+- **Organise pages…**: select one PDF to open a grid of page thumbnails. See [Organising pages](#organising-pages).
 - **Rotate clockwise / anticlockwise**: rotate every page by 90 degrees in a new PDF.
 - **Compress PDF**: perform structural compression and only keep the output when it is smaller.
 
+### Organising pages
+
+Right-click one PDF, then choose **PDF → Organise pages…** (or **Services → PDF… → Organise pages…** in cloud views). The window shows every page as a thumbnail with its position; a moved page also shows its original number, for example `3 (was 5)`. Drag the size slider or resize the window to change the grid. Thumbnails load as they scroll into view, so long documents open straight away.
+
+- **Select**: click, Shift-click for a run, Command-click to add or remove pages, Command-A or **Select all**. The arrow keys move the selection. Type positions such as `1-3, 5, 8` in **Pages** to select them.
+- **Reorder**: drag one or several selected pages to a new place, or use **Move earlier** / **Move later** (Option-Command-Left/Right Arrow).
+- **Rotate**: **Rotate left** / **Rotate right** (Command-L / Command-R) turn the selected pages by 90 degrees. Rotation is saved as page rotation; page content is copied, not redrawn or rasterised.
+- **Delete**: the Delete key or **Delete** removes the selected pages from the organised document. At least one page must remain.
+- **Undo / Redo**: Command-Z and Shift-Command-Z step back and forward through every edit.
+
+Nothing is written until you choose an action. Each action writes a new PDF beside the original, which is never changed:
+
+- **Save as new PDF** (Command-S) saves the organised document as `<name> (organised).pdf`.
+- **Extract selected** (Command-E) saves only the selected pages, in their current order and rotation, as `<name> (extracted).pdf`.
+- **Remove selected and save** deletes the selected pages (undoable) and saves the result as `<name> (organised).pdf`.
+
+An existing file with that name is kept and the new one receives a number suffix, for example `<name> (organised)-1.pdf`. The window stays open for further edits; close it when finished. Results and errors appear at the bottom of the window and saves are added to the recent-job log. If the PDF has bookmarks or digital signatures, the window notes that new PDFs will not keep them. Encrypted PDFs and PDFs with interactive form fields are rejected before the window opens; the reason is recorded in the recent-job log.
+
 PDF-to-image and PDF-to-text conversions live under **Convert**. Page images, audio tracks, workbook sheets and outputs with supporting assets receive their own sibling folders.
 
-Open **rmconvert** in Applications to check Finder integration and installed converters, optionally enable completion notifications, or view the recent-job log. The setup window does not need to stay open. There is no permanent menu-bar app. Ordinary jobs do not open a setup window, Dock icon or modal error dialogue. Failures stay in the recent-job log; existing notification permission controls optional completion/failure notifications. PDF page selection still opens its requested picker.
+Open **rmconvert** in Applications to check Finder integration and installed converters, optionally enable completion notifications, or view the recent-job log. The setup window does not need to stay open. There is no permanent menu-bar app. Ordinary jobs do not open a setup window, Dock icon or modal error dialogue. Failures stay in the recent-job log; existing notification permission controls optional completion/failure notifications. **Organise pages…** opens its window because you asked for it; its messages appear inside the window.
 
 ## Formats and limits
 
-This build contains 47 actions and 64 explicit routing rules. It covers common static images, Office documents, Markdown/HTML/EPUB, spreadsheets, structured data, audio/video and subtitles. See [the route table](docs/ROUTES.md) for the exact routes.
+This build contains 48 actions and 65 explicit routing rules. Two of the actions, page extraction and removal by range, are Terminal-only. It covers common static images, Office documents, Markdown/HTML/EPUB, spreadsheets, structured data, audio/video and subtitles. See [the route table](docs/ROUTES.md) for the exact routes.
 
 Conversion can change content that the destination cannot represent. Photoshop layers are flattened; animated images are rejected by static-image routes. JPEG uses a white background for transparency. Still images, including iPhone HEIC photos with HDR gain maps, are decoded to SDR using macOS Image I/O. Outputs do not retain the HDR gain map. Image ancillary metadata is not copied. Office and document layout depends on the source and installed fonts. PDF page tools create a new page document and do not preserve document outlines or signatures. Encrypted PDFs and interactive forms are rejected. Compression does not downsample images.
 
@@ -67,12 +85,14 @@ The installer creates `~/.local/bin/rmconvert`. Use that full path if the folder
 ```sh
 ~/.local/bin/rmconvert --to png -- "/path/to/picture.jpg"
 ~/.local/bin/rmconvert --action pdf.extract --pages '4,1-2' -- "/path/to/document.pdf"
+~/.local/bin/rmconvert --action pdf.remove --pages '2-3' -- "/path/to/document.pdf"
+~/.local/bin/rmconvert --action pdf.organise --pages '3,1-2,4' -- "/path/to/document.pdf"
 ~/.local/bin/rmconvert --action pdf.combine -- "/path/to/part 1.pdf" "/path/to/part 2.pdf"
 ~/.local/bin/rmconvert --targets-for -- "/path/to/document.pdf"
 ~/.local/bin/rmconvert --doctor
 ```
 
-CLI output is JSON, with a short summary on standard error. Exit codes: 0 completed or skipped; 1 at least one file failed; 2 invalid request/configuration. Logs are individual JSON files in `~/Library/Logs/rmconvert`, retained for up to 30 days and 1,000 jobs. The app displays the latest 100.
+`pdf.extract` and `pdf.remove` are no longer in Finder menus but remain available here, for scripts and Stream Deck buttons. In Terminal, `pdf.organise` writes the listed pages, in the order given, to `<name> (organised).pdf`; rotation and the other edits need the window. CLI output is JSON, with a short summary on standard error. Exit codes: 0 completed or skipped; 1 at least one file failed; 2 invalid request/configuration. Logs are individual JSON files in `~/Library/Logs/rmconvert`, retained for up to 30 days and 1,000 jobs. The app displays the latest 100.
 
 An optional catalogue at `~/.config/rmconvert/manifest.json` replaces the bundled catalogue. Start from `Resources/manifest.json`, validate with `--validate`, then open the app and choose **Check converters** to refresh Finder. The extension caches that validated snapshot across restarts, tied to the bundled catalogue version. A custom route can use an existing adapter; new conversion behaviour requires implementation and tests.
 
@@ -81,13 +101,14 @@ An optional catalogue at `~/.config/rmconvert/manifest.json` replaces the bundle
 ```sh
 ./script/test.sh
 bash tests/signing.sh
+bash tests/organiser_window.sh
 python3 tests/external_routes.py
 python3 tests/images_and_batches.py
 python3 tests/media_routes.py
 python3 tests/office_layouts.py
 ```
 
-Tests generate their own files under `/private/tmp`. They cover output collisions and unchanged originals, native image/PDF operations, document/data routes, media stream copying, a 200-document batch, damaged inputs, workbook sheets, slide images, timeouts and network denial. [the validation record](docs/VALIDATION.md) records the results and remaining integration checks.
+Tests generate their own files under `/private/tmp`. They cover output collisions and unchanged originals, native image/PDF operations, page organising (reorder, rotate, delete, extract, undo/redo, keyboard, accessibility labels and a 500-page window), document/data routes, media stream copying, a 200-document batch, damaged inputs, workbook sheets, slide images, timeouts and network denial. [the validation record](docs/VALIDATION.md) records the results and remaining integration checks.
 
 ## Implementation notes
 

@@ -8,6 +8,8 @@ The matrix discovered 13 overly restrictive FLAC routes and six PDFKit page-oper
 
 Run `python3 tests/conversion_matrix.py --source . --app /Applications/rmconvert.app` to reproduce it.
 
+**Build 10 rerun, 26 September 2026:** the installed build 10 passed all 331 cases: 305 conversions, 26 correct same-format skips and 0 failures, in 65 seconds. The extra case is the new `pdf.organise` route (Terminal form, with `--pages`). `pdf.extract` and `pdf.remove` are now Terminal-only and still pass. The table below includes the new row; the other rows are unchanged.
+
 | Source | Action | Result |
 |---|---|---|
 | aiff | convert.aiff | skipped-same-format |
@@ -213,6 +215,7 @@ Run `python3 tests/conversion_matrix.py --source . --app /Applications/rmconvert
 | pdf | pdf.combine | passed |
 | pdf | pdf.compress | passed |
 | pdf | pdf.extract | passed |
+| pdf | pdf.organise | passed |
 | pdf | pdf.remove | passed |
 | pdf | pdf.rotate-left | passed |
 | pdf | pdf.rotate-right | passed |

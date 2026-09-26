@@ -96,3 +96,34 @@ Two consecutive PNG-to-JPEG actions were invoked through the actual Finder Conve
 The installed build is ad hoc signed and its designated requirement is tied to its code hash. No valid certificate signing identity is configured on this Mac. Repeated development updates can therefore change the identity associated with macOS folder grants. The same-build test establishes that permission was remembered in these two runs; it does not test reboot persistence, all protected locations or permission persistence across a certificate-signed update.
 
 The source scripts now accept `RMCONVERT_SIGNING_IDENTITY` and check an incoming build against the installed app's designated requirement before replacing it or launching a staged update. Six disposable-fixture checks passed in `tests/signing.sh`: unchanged signature accepted, different ad hoc signature rejected, first installation accepted, explicit migration override warned and accepted, damaged signature rejected, and installed fixture unchanged with a valid signature. The unchanged installed app also passed the requirement check. Shell syntax and whitespace checks passed. The installed build 9 was not rebuilt or replaced for this change, preserving its current identity.
+
+## Build 10 Organise pages
+
+26 September 2026 · Apple silicon · macOS 27.0 (26A428) · app 0.1.0, build 10.
+
+**Change.** One **Organise pages…** window replaces the separate **Extract pages…** and **Remove pages…** pickers in the Finder PDF menu and the Services fallback. The window shows a resizable thumbnail grid; supports click, Shift-click, Command-click, Command-A, arrow keys and a **Pages** range field; reorders by drag and drop or Move earlier/later; rotates left/right by 90 degrees; deletes; and undoes or redoes every edit. It saves **Save as new PDF** (`<name> (organised).pdf`), **Extract selected** (`<name> (extracted).pdf`) and **Remove selected and save** beside the original, with the usual number suffix for existing names. `pdf.extract` and `pdf.remove` remain as Terminal-only actions. The catalogue now has 48 actions and 65 routes.
+
+**Automated checks, all passed:**
+
+| Suite | Passed | Evidence |
+|---|---:|---|
+| Native/core (`script/test.sh`) | 125 | The 74 earlier checks plus 51 organiser checks: single and multiple moves in both directions, Move earlier/later at the edges, rotation normalisation and rejection of partial turns, delete (never every page), extract in current order and rotation, range selection and invalid ranges, output names and number suffixes, unchanged original, removed staging folders, a changed-original guard, bookmark and signature detection for the footer, the Terminal `pdf.organise` route, Finder menus offering Organise pages without Extract/Remove, and a 500-page document |
+| Organise window (`tests/organiser_window.sh`) | 48 | The real window controller, driven with generated PDFs in a transparent window: thumbnails load, Pages field selection and inline errors, rotate, move, multi-page drop, undo and redo of every step, the Delete key, arrow-key selection, Select All, menu validation and shortcuts, button and thumbnail VoiceOver labels, all three save actions with correct order and rotation, inline results and an unchanged original |
+| Signing guard | 6 | Unchanged from build 9 |
+| Documents/data/PDF backends | 61 | Installed build 10 |
+| Images and batching | 23 | Installed build 10; 200-document run 29.6 seconds |
+| Media | 42 | Installed build 10 |
+| Office layouts | 6 | Installed build 10 |
+| Conversion matrix | 331 | Installed build 10: 305 conversions, 26 same-format skips, 0 failures; see [the matrix](MATRIX_RESULTS.md) |
+
+**Page content.** Rotation is written as page `/Rotate`, added to any existing page rotation. The core test compares each output page's content stream with its source page: every drawing operator and operand is unchanged. PDFKit's writer rewraps lines and adds one clip to the page box (`0 0 420 595 re W n`); the earlier Extract/Remove/Rotate tools write through the same path. Media boxes are unchanged. The three PDFs saved by the window test passed `qpdf --check`; `qpdf --json` showed the edited order and `/Rotate 270` on the rotated page.
+
+**500 pages.** Engine: load 0.01 s, a move of 250 pages plus rotate-all plus delete 0.1 ms, organised save 0.12 s. Window: open 0.06 s; rotate all 500 pages 0.004 s; while the first screen of thumbnails loaded, the longest main-thread gap was 13 ms, and 8 ms while jumping to page 500. Only pages near the visible area get thumbnail views (under 120 of 500 when checked); thumbnails render on a background queue from a private copy of the PDF, only for pages on screen, with a 256 MB cache limit. These are measurements with small generated pages, not a timing promise for arbitrary documents.
+
+**Installation.** Build 10 built, signed and validated. The installer's signing guard stopped the plain update, as designed for ad hoc builds, so it was installed with `RMCONVERT_ALLOW_IDENTITY_CHANGE=1`. macOS may therefore ask again for access to protected folders such as Downloads. No workers were active. The installed app passed strict signature verification and reports build 10. Exactly one extension is registered and enabled, and its bundled catalogue matches the repository. The extension restarted from the new bundle. The installed CLI lists **Split into separate PDFs, Organise pages…, Rotate clockwise, Rotate anticlockwise, Compress PDF** for a PDF, with no Extract or Remove entries.
+
+**Installed engine.** A generated five-page PDF organised with `rmconvert --action pdf.organise --pages '3,1,5,2'` produced `Synthetic five (organised).pdf`. `qpdf --json` with `pdftotext` showed pages 3, 1, 5, 2 without rotation; `qpdf --check` passed and the source SHA-256 was unchanged.
+
+**Installed window.** A `pdf.organise` request was delivered to the installed app through the same document-open path Finder uses. The worker opened a 940×752 rmconvert window for a generated 24-page PDF, consumed the request and left no staging folders. The worker was then closed. A screenshot of the installed window could not be taken because this tool has no Screen Recording permission; the window test's own rendering of the same controller was inspected instead.
+
+**Not yet verified by hand:** the actual Finder right-click menu showing **PDF → Organise pages…**, the Services choice, mouse drag and drop, VoiceOver speech, and the window's appearance in dark mode. Only generated files were used.

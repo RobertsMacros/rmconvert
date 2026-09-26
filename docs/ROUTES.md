@@ -1,6 +1,6 @@
 # rmconvert delivered routes
 
-Generated from the bundled manifest: 47 actions, 64 explicit rules. Eligibility is rechecked against file contents after selection.
+Generated from the bundled manifest: 48 actions, 65 explicit rules. Two actions are Terminal-only: they are not shown in Finder or Services menus. Eligibility is rechecked against file contents after selection.
 
 | Menu | Action | Source extensions | Handler / requirements |
 |---|---|---|---|
@@ -19,8 +19,9 @@ Generated from the bundled manifest: 47 actions, 64 explicit rules. Eligibility 
 | PDF | Combine into one PDF (`pdf.combine-images`) | jpg, png, tiff, heic, bmp, webp, gif, avif, psd | image.pdf / native |
 | PDF | Combine PDFs (`pdf.combine`) | pdf | pdf / native |
 | PDF | Split into separate PDFs (`pdf.split`) | pdf | pdf / native |
-| PDF | Extract pages… (`pdf.extract`) | pdf | pdf / native |
-| PDF | Remove pages… (`pdf.remove`) | pdf | pdf / native |
+| PDF | Organise pages… (`pdf.organise`) | pdf | pdf / native |
+| Terminal | Extract pages (`pdf.extract`) | pdf | pdf / native |
+| Terminal | Remove pages (`pdf.remove`) | pdf | pdf / native |
 | PDF | Rotate clockwise (`pdf.rotate-right`) | pdf | pdf / native |
 | PDF | Rotate anticlockwise (`pdf.rotate-left`) | pdf | pdf / native |
 | Convert | PNG, one per page (`convert.png`) | pdf | pdf.raster / pdftoppm |
