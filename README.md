@@ -4,7 +4,7 @@
 
 A local macOS file converter by Roberts Macros. The app adds **Convert** and **PDF** to Finder’s right-click menu, with Roberts Macros branding.
 
-**Status:** an early local-use build. Build 10 replaces the separate Extract and Remove page pickers with one **Organise pages…** window. Build 9 introduced one background Finder launch, removing the erroneous launch-error pop-up. Native Services are also available for cloud views. Its conversion engine has passed the [complete conversion matrix](docs/MATRIX_RESULTS.md): 54 source types and 331 source/action combinations, rerun on build 10. HDR gain-map photos convert to standard dynamic range (SDR). Finder uses native system symbols with macOS’s enabled-label colour: opposing arrows for Convert and stacked pages for PDF. The full Roberts Macros logo remains in setup. See [validation and limitations](docs/VALIDATION.md).
+**Status:** an early local-use build. Build 11 redesigns the **Organise pages…** window, adds full-size page previews and gives the app the Roberts Macros icon in the Dock. Build 10 replaces the separate Extract and Remove page pickers with one **Organise pages…** window. Build 9 introduced one background Finder launch, removing the erroneous launch-error pop-up. Native Services are also available for cloud views. Its conversion engine has passed the [complete conversion matrix](docs/MATRIX_RESULTS.md): 54 source types and 331 source/action combinations, rerun on build 10. HDR gain-map photos convert to standard dynamic range (SDR). Finder uses native system symbols with macOS’s enabled-label colour: opposing arrows for Convert and stacked pages for PDF. The full Roberts Macros logo remains in setup. See [validation and limitations](docs/VALIDATION.md).
 
 ## Using it
 
@@ -23,21 +23,24 @@ Use **PDF** for:
 
 ### Organising pages
 
-Right-click one PDF, then choose **PDF → Organise pages…** (or **Services → PDF… → Organise pages…** in cloud views). The window shows every page as a thumbnail with its position; a moved page also shows its original number, for example `3 (was 5)`. Drag the size slider or resize the window to change the grid. Thumbnails load as they scroll into view, so long documents open straight away.
+Right-click one PDF, then choose **PDF → Organise pages…** (or **Services → PDF… → Organise pages…** in cloud views). The window has a toolbar across the top, the pages in the middle and a footer showing the page count and selection (for example `12 pages · 3 selected`) with the save actions. While it is open, rmconvert appears in the Dock with the Roberts Macros icon. The window reopens at the size and place you last used.
 
-- **Select**: click, Shift-click for a run, Command-click to add or remove pages, Command-A or **Select all**. The arrow keys move the selection. Type positions such as `1-3, 5, 8` in **Pages** to select them.
-- **Reorder**: drag one or several selected pages to a new place, or use **Move earlier** / **Move later** (Option-Command-Left/Right Arrow).
-- **Rotate**: **Rotate left** / **Rotate right** (Command-L / Command-R) turn the selected pages by 90 degrees. Rotation is saved as page rotation; page content is copied, not redrawn or rasterised.
-- **Delete**: the Delete key or **Delete** removes the selected pages from the organised document. At least one page must remain.
+- **View**: the first toolbar control switches between **Thumbnails** (Command-1), a grid numbered by current position, and **Pages** (Command-2), every page at full width in one scrolling column. A moved page's thumbnail also shows its original number, for example `3 (was 5)`. Drag the size slider, or use **View → Zoom In / Zoom Out** (Command-= / Command--), to step between small, medium and large thumbnails; the size is remembered. In **Pages**, the zoom commands enlarge the pages instead. Thumbnails load as they scroll into view, so long documents open straight away.
+- **Quick Look**: press Space, double-click a thumbnail, click the eye button or press Command-Y to open the selected page large in its own panel. The Left and Right (or Up and Down) Arrow keys move to the previous or next page, and select it; Space, Return or Escape closes the panel. The panel follows the selection while it is open.
+- Both previews always show the organised document as it stands, including unsaved moves, rotations and deletions, and update after every edit or undo. In **Pages**, scrolling selects the page in view, so Rotate, Move, Delete and **Extract Selected** act on that page.
+- **Select**: click, Shift-click for a run, Command-click to add or remove pages, Command-A or **Pages → Select All Pages**. The arrow keys move the selection. Type positions such as `1-3, 5, 8` in the toolbar's **Select pages** field to select them.
+- **Reorder**: drag one or several selected pages to a new place, or use the toolbar's move buttons (Option-Command-Left/Right Arrow).
+- **Rotate**: the toolbar's rotate buttons (Command-L / Command-R) turn the selected pages by 90 degrees. Rotation is saved as page rotation; page content is copied, not redrawn or rasterised.
+- **Delete**: the Delete key or the toolbar's bin button removes the selected pages from the organised document. At least one page must remain.
 - **Undo / Redo**: Command-Z and Shift-Command-Z step back and forward through every edit.
 
 Nothing is written until you choose an action. Each action writes a new PDF beside the original, which is never changed:
 
-- **Save as new PDF** (Command-S) saves the organised document as `<name> (organised).pdf`.
-- **Extract selected** (Command-E) saves only the selected pages, in their current order and rotation, as `<name> (extracted).pdf`.
-- **Remove selected and save** deletes the selected pages (undoable) and saves the result as `<name> (organised).pdf`.
+- **Save as New PDF** (Command-S, the highlighted button) saves the organised document as `<name> (organised).pdf`.
+- **Extract Selected** (Command-E) saves only the selected pages, in their current order and rotation, as `<name> (extracted).pdf`.
+- **Remove Selected and Save** deletes the selected pages (undoable) and saves the result as `<name> (organised).pdf`.
 
-An existing file with that name is kept and the new one receives a number suffix, for example `<name> (organised)-1.pdf`. The window stays open for further edits; close it when finished. Results and errors appear at the bottom of the window and saves are added to the recent-job log. If the PDF has bookmarks or digital signatures, the window notes that new PDFs will not keep them. Encrypted PDFs and PDFs with interactive form fields are rejected before the window opens; the reason is recorded in the recent-job log.
+An existing file with that name is kept and the new one receives a number suffix, for example `<name> (organised)-1.pdf`. The window stays open for further edits; close it when finished. Results and errors appear in the footer and saves are added to the recent-job log. If the PDF has bookmarks or digital signatures, the window notes that new PDFs will not keep them. Encrypted PDFs and PDFs with interactive form fields are rejected before the window opens; the reason is recorded in the recent-job log.
 
 PDF-to-image and PDF-to-text conversions live under **Convert**. Page images, audio tracks, workbook sheets and outputs with supporting assets receive their own sibling folders.
 
@@ -64,7 +67,7 @@ brew install --cask libreoffice
 ./script/install.sh
 ```
 
-`script/build_and_run.sh` is the build/run entry point. Build staging is in `/private/tmp/rmconvert-build-<uid>` to avoid iCloud metadata interfering with signing. `outputs/rmconvert.zip` contains the built app; it does not bundle the shared converter installations. Quit setup windows and finish conversions before updating. The installer refuses to replace an app with active workers.
+`script/build_and_run.sh` is the build/run entry point. It also builds the app icon, `AppIcon.icns`, from `Resources/AppIcon.iconset` with macOS's `iconutil`. Those PNGs are generated from the Roberts Macros logo by `python3 script/make_icon.py` (needs Pillow; rerun only if the logo changes). If the Dock still shows the old icon after installing, run `killall Dock`. Build staging is in `/private/tmp/rmconvert-build-<uid>` to avoid iCloud metadata interfering with signing. `outputs/rmconvert.zip` contains the built app; it does not bundle the shared converter installations. Quit setup windows and finish conversions before updating. The installer refuses to replace an app with active workers.
 
 ### Folder permission and updates
 
@@ -110,7 +113,7 @@ python3 tests/media_routes.py
 python3 tests/office_layouts.py
 ```
 
-Tests generate their own files under `/private/tmp`. They cover output collisions and unchanged originals, native image/PDF operations, page organising (reorder, rotate, delete, extract, undo/redo, keyboard, accessibility labels and a 500-page window), document/data routes, media stream copying, a 200-document batch, damaged inputs, workbook sheets, slide images, timeouts and network denial. [the validation record](docs/VALIDATION.md) records the results and remaining integration checks.
+Tests generate their own files under `/private/tmp`. They cover output collisions and unchanged originals, native image/PDF operations, page organising (reorder, rotate, delete, extract, undo/redo, keyboard, the Pages view and Quick Look panel following unsaved edits, thumbnail sizes, accessibility labels and a 500-page window), document/data routes, media stream copying, a 200-document batch, damaged inputs, workbook sheets, slide images, timeouts and network denial. [the validation record](docs/VALIDATION.md) records the results and remaining integration checks.
 
 ## Implementation notes
 

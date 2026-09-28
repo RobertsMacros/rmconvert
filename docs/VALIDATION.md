@@ -127,3 +127,13 @@ The source scripts now accept `RMCONVERT_SIGNING_IDENTITY` and check an incoming
 **Installed window.** A `pdf.organise` request was delivered to the installed app through the same document-open path Finder uses. The worker opened a 940×752 rmconvert window for a generated 24-page PDF, consumed the request and left no staging folders. The worker was then closed. A screenshot of the installed window could not be taken because this tool has no Screen Recording permission; the window test's own rendering of the same controller was inspected instead.
 
 **Not yet verified by hand:** the actual Finder right-click menu showing **PDF → Organise pages…**, the Services choice, mouse drag and drop, VoiceOver speech, and the window's appearance in dark mode. Only generated files were used.
+
+## Build 11 Organise pages layout, previews and app icon
+
+28 September 2026 · source change only; **not yet built or run on a Mac.**
+
+**Change.** The Organise pages window moves its controls into a unified toolbar with SF Symbols, adds a footer status line (`12 pages · 3 selected`) beside the save actions, restyles thumbnails with accent-coloured page-number labels, and remembers its frame and thumbnail size. New: a **Pages** view (PDFKit, continuous) showing every page large, a **Quick Look** panel for one page (Space, double-click, Command-Y; arrow keys step through pages), and View menu commands for both and for thumbnail size. Both previews are built from the current, unsaved arrangement. The app bundle now includes `AppIcon.icns` (from `Resources/AppIcon.iconset`, generated from the Roberts Macros logo), named by `CFBundleIconFile` and also set at run time, so the Dock shows the Roberts Macros icon while a window is open. Bundle version 11.
+
+**Tests added (not yet run):** `tests/organiser_window.sh` now also checks the new status text, the View menu and its shortcuts, thumbnail size steps and persistence, the Pages view showing current order, rotation and deletions and following edits and undo, and Quick Look opening with Space at the selected page, stepping with the arrow keys, naming the page and closing with Escape.
+
+**To check by hand on the Mac:** that it builds; the toolbar's appearance and overflow at the minimum width; the tinted **Save as New PDF** button; thumbnail shadows and selection in light and dark mode; the Dock icon while the window is open (run `killall Dock` if an old icon is cached); double-click and Space opening Quick Look; scrolling in the Pages view selecting the page in view; and that the 500-page timings still pass.

@@ -99,7 +99,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, UNUserNotificationCent
     func showSetupApplication() {
         lifecycle.notice("Explicit setup opened")
         worker = false
-        NSApp.setActivationPolicy(.regular)
+        useBrandIcon(); NSApp.setActivationPolicy(.regular)
         installMenu(); showSetup(); refresh()
         NSApp.activate(ignoringOtherApps: true)
     }
@@ -125,6 +125,12 @@ final class AppDelegate: NSObject, NSApplicationDelegate, UNUserNotificationCent
         edit.submenu = sub; menu.addItem(edit)
         if organiser { PageOrganiserController.addMenus(to: menu) }
         NSApp.mainMenu = menu
+    }
+
+    /// The bundle's CFBundleIconFile already names AppIcon.icns; setting it at run
+    /// time as well covers a stale Launch Services icon cache after an update.
+    func useBrandIcon() {
+        if let icon = NSImage(contentsOf: RMPaths.resourceDirectory.appendingPathComponent("AppIcon.icns")) { NSApp.applicationIconImage = icon }
     }
 
     func makeWindow(_ title: String, size: NSSize) -> NSWindow {
@@ -191,7 +197,8 @@ final class AppDelegate: NSObject, NSApplicationDelegate, UNUserNotificationCent
         let engine = ConversionEngine(manifest: manifest)
         let document = try engine.loadPDF(input)
         pending = request
-        NSApp.setActivationPolicy(.regular); installMenu(organiser: true)
+        // The worker only appears in the Dock while this window is open; show the Roberts Macros icon there.
+        useBrandIcon(); NSApp.setActivationPolicy(.regular); installMenu(organiser: true)
         let controller = PageOrganiserController(input: input, document: document, engine: engine,
             logo: NSImage(contentsOf: RMPaths.resourceDirectory.appendingPathComponent("RobertsMacros.png")))
         controller.onClose = { [weak self] in if self?.worker == true { NSApp.terminate(nil) } }

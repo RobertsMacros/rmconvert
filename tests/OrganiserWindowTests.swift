@@ -61,11 +61,11 @@ import PDFKit
         window.alphaValue = 0; window.setFrameOrigin(NSPoint(x: 40, y: 40)); window.orderFrontRegardless()
         try expect(wait(10) { loadedThumbnails(controller) }, "thumbnails load")
         try expect(controller.collection.visibleItems().count >= 5, "grid shows several pages per row (\(controller.collection.visibleItems().count))")
-        try expect(controller.status.stringValue.hasPrefix("No pages selected"), "starts with no selection")
+        try expect(controller.status.stringValue == "12 pages · none selected", "starts with no selection: \(controller.status.stringValue)")
 
         controller.pageField.stringValue = "2-3, 12"; controller.choosePages(nil)
         try expect(controller.selectedIndexes == [1, 2, 11], "Pages field selects ranges")
-        try expect(controller.status.stringValue.hasPrefix("3 of 12"), "status reports the selection")
+        try expect(controller.status.stringValue == "12 pages · 3 selected", "status reports the selection")
         controller.pageField.stringValue = "4-2"; controller.controlTextDidChange(Notification(name: NSControl.textDidChangeNotification))
         try expect(controller.result.stringValue.contains("Invalid range") && controller.selectedIndexes == [1, 2, 11], "invalid range shown inline, selection kept")
 
@@ -109,14 +109,56 @@ import PDFKit
         try expect(!controller.validateMenuItem(remove), "cannot remove every page")
         let menu = NSMenu(); menu.addItem(NSMenuItem(title: "rmconvert", action: nil, keyEquivalent: "")); menu.addItem(NSMenuItem(title: "Edit", action: nil, keyEquivalent: ""))
         PageOrganiserController.addMenus(to: menu)
-        try expect(menu.items.map(\.title) == ["rmconvert", "File", "Edit", "Pages"], "File and Pages menus")
+        try expect(menu.items.map(\.title) == ["rmconvert", "File", "Edit", "View", "Pages"], "File, View and Pages menus")
         let shortcuts = menu.items.compactMap(\.submenu).flatMap(\.items).filter { !$0.keyEquivalent.isEmpty }.map { $0.title }
-        try expect(Set(["Save as New PDF", "Extract Selected", "Rotate Left", "Rotate Right", "Move Earlier", "Move Later", "Delete Pages"]).isSubset(of: Set(shortcuts)), "keyboard shortcuts for page actions")
+        try expect(Set(["Save as New PDF", "Extract Selected", "as Thumbnails", "as Pages", "Quick Look", "Rotate Left", "Rotate Right", "Move Earlier", "Move Later", "Delete Pages"]).isSubset(of: Set(shortcuts)), "keyboard shortcuts for page actions")
         for button in [controller.window!.contentView!].flatMap({ all($0) }).compactMap({ $0 as? NSButton }) {
             try expect(!(button.accessibilityLabel() ?? button.title).isEmpty, "button has an accessible name")
         }
         let item = controller.collection.visibleItems().compactMap { $0 as? PageItem }.first { controller.collection.indexPath(for: $0)?.item == 2 }
         try expect(item?.view.accessibilityLabel() == "Page 3 of 12, originally page 2, rotated 90 degrees anticlockwise", "thumbnail VoiceOver label")
+
+        // Thumbnail size: small, medium and large steps, remembered for next time.
+        controller.sizeSlider.doubleValue = 176; controller.resize(nil)
+        controller.zoomOut(nil)
+        try expect(controller.sizeSlider.doubleValue == 96, "Zoom Out steps to small thumbnails")
+        controller.zoomIn(nil); controller.zoomIn(nil)
+        try expect(controller.sizeSlider.doubleValue == 256 && UserDefaults.standard.double(forKey: PageOrganiserController.sizeKey) == 256, "Zoom In steps to large thumbnails and is remembered")
+        controller.sizeSlider.doubleValue = 176; controller.resize(nil); pump()
+
+        // Pages view: every page large, showing the unsaved order, rotation and deletions.
+        controller.select([2]); controller.showPages(nil); pump(0.2)
+        try expect(controller.mode == .pages && !controller.pagesView.isHidden && controller.status.stringValue == "12 pages · 1 selected", "Pages view shown")
+        var preview = controller.pagesView.document
+        try expect(preview?.pageCount == 12 && preview?.page(at: 2)?.string?.contains("Page 2") == true && preview?.page(at: 2)?.rotation == 270, "Pages view shows the current order and rotation")
+        try expect(controller.pagesView.currentPage.flatMap { preview?.index(for: $0) } == 2, "Pages view opens at the selected page")
+        step { controller.rotateRight(nil) }
+        preview = controller.pagesView.document
+        try expect(controller.pages[2].rotation == 0 && preview?.page(at: 2)?.rotation == 0 && controller.selectedIndexes == [2], "edits in Pages view act on the page shown and update it")
+        step { controller.deletePages(nil) }
+        try expect(controller.pagesView.document?.pageCount == 11, "Pages view reflects deletions")
+        step { history.undo() }; step { history.undo() }
+        try expect(controller.pagesView.document?.page(at: 2)?.rotation == 270 && controller.pagesView.document?.pageCount == 12, "undo updates Pages view")
+        controller.showThumbnails(nil)
+        try expect(controller.mode == .thumbnails && controller.pagesView.isHidden, "back to thumbnails")
+
+        // Quick Look: Space opens the selected page large; arrow keys move through pages; Escape closes.
+        controller.makeLookPanel().alphaValue = 0
+        controller.select([2]); window.makeFirstResponder(controller.collection)
+        func key(_ characters: String, _ code: UInt16) -> NSEvent {
+            NSEvent.keyEvent(with: .keyDown, location: .zero, modifierFlags: [], timestamp: 0, windowNumber: window.windowNumber, context: nil,
+                             characters: characters, charactersIgnoringModifiers: characters, isARepeat: false, keyCode: code)!
+        }
+        controller.collection.keyDown(with: key(" ", 49)); pump(0.2)
+        let look = controller.lookView
+        try expect(controller.lookIndex == 2 && look.currentPage.flatMap { look.document?.index(for: $0) } == 2 && look.document?.page(at: 2)?.rotation == 270, "Space previews the selected page as arranged")
+        try expect(controller.lookPanel?.title == "Page 3 of 12" && controller.lookPanel?.subtitle == "originally page 2 · rotated left", "preview panel names the page")
+        look.keyDown(with: key(String(UnicodeScalar(NSRightArrowFunctionKey)!), 124)); pump(0.1)
+        try expect(controller.lookIndex == 3 && controller.selectedIndexes == [3] && look.currentPage.flatMap { look.document?.index(for: $0) } == 3, "right arrow shows the next page and selects it")
+        look.keyDown(with: key(String(UnicodeScalar(NSLeftArrowFunctionKey)!), 123)); pump(0.1)
+        try expect(controller.lookIndex == 2 && controller.selectedIndexes == [2], "left arrow shows the previous page")
+        look.keyDown(with: key("\u{1B}", 53)); pump(0.1)
+        try expect(controller.lookPanel?.isVisible == false && controller.window?.isVisible == true, "Escape closes the preview, not the window")
 
         // Saving: organised, extracted, remove selected. The original is kept.
         var saved: [URL] = []
